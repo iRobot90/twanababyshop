@@ -12,12 +12,20 @@ class Category(models.Model):
         return self.name
 
 class Product(models.Model):
+    AGE_CHOICES = [
+        ('0-6m', '0-6 Months'),
+        ('6-12m', '6-12 Months'),
+        ('1-2y', '1-2 Years'),
+        ('2-4y', '2-4 Years'),
+        ('4y+', '4+ Years'),
+    ]
     category = models.ForeignKey(Category, related_name='products', on_delete=models.CASCADE)
     name = models.CharField(max_length=200)
     slug = models.SlugField(unique=True)
     image = models.ImageField(upload_to='products/', blank=True, null=True)
     description = models.TextField(blank=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    age_group = models.CharField(max_length=10, choices=AGE_CHOICES, default='0-6m')
     available = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)

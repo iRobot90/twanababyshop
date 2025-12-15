@@ -1,10 +1,16 @@
 import { Link } from 'react-router-dom';
 import { FaShoppingCart, FaUser } from 'react-icons/fa';
+import { motion } from 'framer-motion';
 import './Navbar.css';
 
 const Navbar = () => {
     return (
-        <nav className="navbar">
+        <motion.nav
+            className="navbar"
+            initial={{ y: -100 }}
+            animate={{ y: 0 }}
+            transition={{ duration: 0.5 }}
+        >
             <div className="navbar-container">
                 <Link to="/" className="navbar-logo">
                     Twana<span className="highlight">BabyShop</span>
@@ -15,15 +21,19 @@ const Navbar = () => {
                 </div>
                 <div className="navbar-icons">
                     <Link to="/cart" className="cart-icon">
-                        <FaShoppingCart />
+                        <motion.div whileHover={{ scale: 1.1 }}>
+                            <FaShoppingCart />
+                        </motion.div>
                         <span className="cart-count">0</span>
                     </Link>
                     <Link to="/profile" className="user-icon">
-                        <FaUser />
+                        <motion.div whileHover={{ scale: 1.1 }}>
+                            <FaUser />
+                        </motion.div>
                     </Link>
                 </div>
             </div>
-        </nav>
+        </motion.nav>
     );
 };
 
