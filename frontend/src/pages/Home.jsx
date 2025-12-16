@@ -1,64 +1,79 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-<<<<<<< HEAD
-import { motion } from 'framer-motion';
-import './Home.css';
-
-const Home = () => {
-    return (
-        <div className="home">
-            <section className="hero">
-                <motion.div
-                    className="hero-content"
-                    initial={{ opacity: 0, y: 30 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8 }}
-                >
-                    <h1>Welcome to <span className="highlight">TwanaBabyShop</span></h1>
-                    <p>The best for your little one, delivered across Kenya.</p>
-                    <Link to="/shop">
-                        <motion.button
-                            className="btn btn-primary"
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                        >
-                            Shop Now
-                        </motion.button>
-                    </Link>
-                </motion.div>
-            </section>
-
-            <section className="featured">
-                <motion.h2
-                    initial={{ opacity: 0 }}
-                    whileInView={{ opacity: 1 }}
-                    viewport={{ once: true }}
-                >
-                    Featured Categories
-                </motion.h2>
-                <div className="categories-grid">
-                    {['Clothing', 'Diapers', 'Toys'].map((cat, index) => (
-                        <motion.div
-                            className="category-card"
-                            key={cat}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: index * 0.1 }}
-                            whileHover={{ y: -10 }}
-                        >
-                            <h3>{cat}</h3>
-                        </motion.div>
-                    ))}
-                </div>
-            </section>
-        </div>
-    );
-=======
-import { Box, Container, Typography, Button, Grid, Paper, styled, IconButton } from '@mui/material';
+import { Box, Container, Typography, Button, Grid, Paper, styled, IconButton, CircularProgress } from '@mui/material';
 import { ShoppingCart, LocalShipping, GppGood, Favorite, ArrowBackIos, ArrowForwardIos } from '@mui/icons-material';
-import { categories } from '../data/products';
 import { motion, AnimatePresence } from 'framer-motion';
+import axios from 'axios';
+
+// API base URL
+const API_URL = 'http://localhost:8000/api';
+
+// Mock categories for now - we'll replace this with API data later
+const categories = [
+  { id: 1, name: 'Clothing', slug: 'clothing', image: '/images/categories/clothing.jpg' },
+  { id: 2, name: 'Toys', slug: 'toys', image: '/images/categories/toys.jpg' },
+  { id: 3, name: 'Feeding', slug: 'feeding', image: '/images/categories/feeding.jpg' },
+  { id: 4, name: 'Nursery', slug: 'nursery', image: '/images/categories/nursery.jpg' },
+];
+
+// Product Card Component
+const ProductCard = ({ product }) => (
+  <Paper
+    component={motion.div}
+    whileHover={{ y: -5, boxShadow: '0 10px 20px rgba(0,0,0,0.1)' }}
+    sx={{
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      borderRadius: 2,
+      overflow: 'hidden',
+      transition: 'all 0.3s ease',
+    }}
+  >
+    <Box
+      sx={{
+        pt: '100%',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <img
+        src={product.image || '/images/placeholder-product.jpg'}
+        alt={product.name}
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+        }}
+      />
+    </Box>
+    <Box p={2}>
+      <Typography variant="h6" component="h3" gutterBottom noWrap>
+        {product.name}
+      </Typography>
+      <Typography variant="body2" color="text.secondary" paragraph>
+        {product.description?.substring(0, 100)}...
+      </Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h6" color="primary">
+          ${product.price}
+        </Typography>
+        <Button
+          component={Link}
+          to={`/product/${product.slug}`}
+          variant="contained"
+          size="small"
+          startIcon={<ShoppingCart />}
+        >
+          Add to Cart
+        </Button>
+      </Box>
+    </Box>
+  </Paper>
+);
 
 // Styled Components
 const HeroSection = styled(Box)(({ theme }) => ({
@@ -159,6 +174,26 @@ const FeatureCard = styled(Paper)(({ theme }) => ({
 
 const Home = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get(`${API_URL}/products/`);
+        setProducts(response.data);
+      } catch (err) {
+        console.error('Error fetching products:', err);
+        setError('Failed to load products. Please try again later.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
   const itemsPerPage = 3;
 
   const nextSlide = () => {
@@ -185,42 +220,46 @@ const Home = () => {
     visibleCategories.push(...categories.slice(0, remaining));
   }
 
+  // Get featured products (first 6 products)
+  const featuredProducts = products.slice(0, 6);
+
   return (
     <Box sx={{ overflowX: 'hidden' }}>
       <HeroSection>
         <HeroContent>
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
-            <Typography variant="h1" component="h1">
-              Welcome to TwanaBabyShop
+            <Typography variant="h1" component="h1" gutterBottom>
+              Welcome to Twana Baby Shop
             </Typography>
-            <Typography variant="h5" sx={{ mb: 4, fontWeight: 300 }}>
-              Premium Baby Products for Your Little Ones
+            <Typography variant="h5" paragraph>
+              Discover the best baby products for your little ones
             </Typography>
-            <Box>
+            <div>
               <Button
                 component={Link}
                 to="/shop"
                 variant="contained"
                 color="primary"
                 size="large"
+                startIcon={<ShoppingCart />}
+                sx={{ mr: 2, mb: { xs: 2, sm: 0 } }}
               >
                 Shop Now
               </Button>
               <Button
                 component={Link}
-                to="/categories"
+                to="/about"
                 variant="outlined"
                 color="inherit"
                 size="large"
-                sx={{ borderColor: 'white', color: 'white', '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.1)' } }}
               >
-                View Categories
+                Learn More
               </Button>
-            </Box>
+            </div>
           </motion.div>
         </HeroContent>
       </HeroSection>
@@ -364,7 +403,6 @@ const Home = () => {
       </Box>
     </Box >
   );
->>>>>>> 88e8ed9 (Major backend and frontend updates for product management)
 };
 
 export default Home;

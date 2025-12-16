@@ -1,7 +1,3 @@
-<<<<<<< HEAD
-import { motion } from 'framer-motion';
-import './ProductCard.css';
-=======
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -83,34 +79,8 @@ const ProductCard = ({ product, onAddToCart }) => {
         e.stopPropagation();
         setIsWishlisted(!isWishlisted);
     };
->>>>>>> 88e8ed9 (Major backend and frontend updates for product management)
 
     return (
-<<<<<<< HEAD
-        <motion.div
-            className="product-card"
-            whileHover={{ y: -10 }}
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3 }}
-        >
-            <div className="product-image">
-                <img src={product.image || 'https://via.placeholder.com/200'} alt={product.name} />
-            </div>
-            <div className="product-info">
-                <h3>{product.name}</h3>
-                <span className="age-badge">{product.age_group}</span>
-                <p className="product-price">KES {product.price}</p>
-                <motion.button
-                    className="btn btn-primary"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                >
-                    Add to Cart
-                </motion.button>
-            </div>
-        </motion.div>
-=======
         <StyledCard
             elevation={2}
             onMouseEnter={() => setIsHovered(true)}
@@ -253,7 +223,6 @@ const ProductCard = ({ product, onAddToCart }) => {
                 </CardContent>
             </CardActionArea>
         </StyledCard>
->>>>>>> 88e8ed9 (Major backend and frontend updates for product management)
     );
 };
 
