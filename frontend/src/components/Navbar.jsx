@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom';
 import { FaShoppingCart, FaUser } from 'react-icons/fa';
-import { motion } from 'framer-motion';
 import './Navbar.css';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { Link as RouterLink, useNavigate, useLocation } from 'react-router-dom';
@@ -49,7 +48,7 @@ import {
   FavoriteBorder as FavoriteBorderIcon,
   ExitToApp as ExitToAppIcon
 } from '@mui/icons-material';
-import { motion, AnimatePresence } from 'framer-motion';
+import {motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../contexts/CartContext';
 
 // ============================================
