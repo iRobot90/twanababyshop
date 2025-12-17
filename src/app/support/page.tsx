@@ -10,7 +10,7 @@ export default function SupportPage() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                     {/* Contact Info */}
-                    <div className="bg-white p-8 rounded-3xl shadow-sm h-fit">
+                    <div id="contact" className="bg-white p-8 rounded-3xl shadow-sm h-fit scroll-mt-32">
                         <h2 className="text-2xl font-bold mb-6">Get in Touch</h2>
                         <div className="space-y-6">
                             <div className="flex items-center gap-4">
@@ -43,23 +43,28 @@ export default function SupportPage() {
                         </div>
                     </div>
 
-                    {/* FAQ */}
+                    {/* FAQ & Policies */}
                     <div className="space-y-6">
-                        <h2 className="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
+                        <div id="faq" className="scroll-mt-32">
+                            <h2 className="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
 
-                        <div className="bg-white p-6 rounded-2xl shadow-sm">
-                            <h3 className="font-bold text-lg mb-2">How long is delivery?</h3>
-                            <p className="text-muted-foreground">We deliver within 24-48 hours in Nairobi and 3-5 days countrywide.</p>
+                            <div className="bg-white p-6 rounded-2xl shadow-sm mb-4">
+                                <h3 className="font-bold text-lg mb-2">How long is delivery?</h3>
+                                <p className="text-muted-foreground">We deliver within 24-48 hours in Nairobi and 3-5 days countrywide.</p>
+                            </div>
+
+                            <div className="bg-white p-6 rounded-2xl shadow-sm mb-4">
+                                <h3 className="font-bold text-lg mb-2">Do you have a physical store?</h3>
+                                <p className="text-muted-foreground">We are primarily online but offer pickups from our Westlands depot.</p>
+                            </div>
                         </div>
 
-                        <div className="bg-white p-6 rounded-2xl shadow-sm">
-                            <h3 className="font-bold text-lg mb-2">What is your return policy?</h3>
-                            <p className="text-muted-foreground">We accept returns within 7 days for unused items in original packaging.</p>
-                        </div>
-
-                        <div className="bg-white p-6 rounded-2xl shadow-sm">
-                            <h3 className="font-bold text-lg mb-2">Do you have a physical store?</h3>
-                            <p className="text-muted-foreground">We are primarily online but offer pickups from our Westlands depot.</p>
+                        <div id="shipping" className="scroll-mt-32">
+                            <h2 className="text-2xl font-bold mb-6">Policies</h2>
+                            <div className="bg-white p-6 rounded-2xl shadow-sm">
+                                <h3 className="font-bold text-lg mb-2">Return Policy</h3>
+                                <p className="text-muted-foreground">We accept returns within 7 days for unused items in original packaging.</p>
+                            </div>
                         </div>
                     </div>
                 </div>
