@@ -1,0 +1,190 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+
+@layer base {
+  :root {
+    /* Kenyan Vibrance Palette - Pro Refined */
+    --color-primary: #E13025; /* Maasai Red */
+    --color-primary-dark: #B91C12;
+    --color-secondary: #009A44; /* Kenyan Flag Green */
+    --color-secondary-dark: #007A35;
+    --color-accent: #1A1A1A; /* Bold Black */
+    --color-background: #FAFAFA;
+    --color-surface: #FFFFFF;
+    --color-text: #2D3436;
+    --color-text-muted: #636E72;
+    --color-border: #E0E0E0;
+
+    /* Typography - Modern & Clean */
+    --font-family: 'Outfit', 'Inter', sans-serif;
+    --font-size-sm: 0.875rem;
+    --font-size-base: 1rem;
+    --font-size-lg: 1.25rem;
+    --font-size-xl: 1.5rem;
+    --font-size-2xl: 2rem;
+    --font-size-3xl: 3rem;
+    --font-size-4xl: 4rem;
+
+    /* Spacing */
+    --spacing-xs: 0.25rem;
+    --spacing-sm: 0.5rem;
+    --spacing-md: 1rem;
+    --spacing-lg: 1.5rem;
+    --spacing-xl: 2rem;
+    --spacing-2xl: 4rem;
+
+    /* Border Radius */
+    --radius-sm: 6px;
+    --radius-md: 12px;
+    --radius-lg: 24px;
+    --radius-full: 9999px;
+
+    /* Shadows - Soft & Premium */
+    --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 6px 12px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.12);
+    --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
+    
+    /* For Tailwind */
+    --foreground-rgb: 45, 52, 54; /* --color-text */
+    --background-rgb: 250, 250, 250; /* --color-background */
+  }
+
+  body {
+    @apply font-sans bg-background text-foreground antialiased leading-relaxed;
+    font-family: var(--font-family);
+  }
+
+  * {
+    @apply box-border p-0 m-0;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold leading-tight tracking-tight;
+    margin: 0;
+  }
+
+  h1 { @apply text-4xl md:text-5xl lg:text-6xl; }
+  h2 { @apply text-3xl md:text-4xl; }
+  h3 { @apply text-2xl md:text-3xl; }
+  h4 { @apply text-xl md:text-2xl; }
+  h5 { @apply text-lg md:text-xl; }
+  h6 { @apply text-base md:text-lg; }
+
+  a {
+    @apply text-inherit no-underline transition-colors duration-200;
+  }
+
+  button, [type='button'], [type='reset'], [type='submit'] {
+    @apply cursor-pointer font-inherit border-none outline-none;
+  }
+
+  /* Custom container class that matches the design system */
+  .container {
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    @apply w-2 h-2;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-gray-100 rounded;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-gray-300 rounded hover:bg-gray-400;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Remove focus ring for mouse users but keep for keyboard navigation */
+  :focus:not(:focus-visible) {
+    @apply outline-none;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-8 py-2 rounded-full font-semibold text-base transition-all duration-200;
+    min-height: 44px; /* Better touch target */
+    
+    &:disabled {
+      @apply opacity-50 cursor-not-allowed;
+    }
+
+    &-primary {
+      @apply bg-primary text-white hover:bg-primary-dark;
+      box-shadow: 0 4px 12px rgba(225, 48, 37, 0.3);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(225, 48, 37, 0.4);
+      }
+    }
+
+    &-secondary {
+      @apply bg-secondary text-white hover:bg-secondary-dark;
+    }
+
+    &-outline {
+      @apply bg-transparent border-2 border-current hover:bg-black/5;
+    }
+
+    &-icon {
+      @apply p-2 rounded-full hover:bg-black/5;
+    }
+  }
+
+  /* Card component */
+  .card {
+    @apply bg-surface rounded-xl shadow-sm overflow-hidden transition-shadow hover:shadow-md;
+  }
+
+  /* Form elements */
+  .input {
+    @apply w-full px-4 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all;
+  }
+
+  .label {
+    @apply block text-sm font-medium text-gray-700 mb-1;
+  }
+
+  /* Animation for page transitions */
+  .page-enter {
+    @apply opacity-0 translate-y-4;
+  }
+
+  .page-enter-active {
+    @apply opacity-100 translate-y-0 transition-opacity duration-300 transition-transform duration-300;
+  }
+
+  .page-exit {
+    @apply opacity-100 translate-y-0;
+  }
+
+  .page-exit-active {
+    @apply opacity-0 -translate-y-4 transition-opacity duration-300 transition-transform duration-300;
+  }
+}
+
+/* Custom utilities */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .full-bleed {
+    width: 100vw;
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+}
