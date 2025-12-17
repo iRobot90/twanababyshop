@@ -53,19 +53,19 @@ export default function Footer() {
                     <div>
                         <h4 className="font-bold text-lg mb-6">Support</h4>
                         <ul className="space-y-4 text-muted-foreground">
-                            <li><Link href="#" className="hover:text-primary transition-colors">Shipping & Returns</Link></li>
-                            <li><Link href="#" className="hover:text-primary transition-colors">Size Guide</Link></li>
-                            <li><Link href="#" className="hover:text-primary transition-colors">FAQ</Link></li>
-                            <li><Link href="#" className="hover:text-primary transition-colors">Contact Us</Link></li>
+                            <li><Link href="/support#shipping" className="hover:text-primary transition-colors">Shipping & Returns</Link></li>
+                            <li><Link href="/size-guide" className="hover:text-primary transition-colors">Size Guide</Link></li>
+                            <li><Link href="/support#faq" className="hover:text-primary transition-colors">FAQ</Link></li>
+                            <li><Link href="/support#contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
                         </ul>
                     </div>
                 </div>
 
                 <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-gray-200/50 text-sm text-muted-foreground">
-                    <p>© 2024 Twana Baby Shop. All rights reserved.</p>
+                    <p>© {new Date().getFullYear()} Twana Baby Shop. All rights reserved.</p>
                     <div className="flex gap-6 mt-4 md:mt-0">
-                        <Link href="#" className="hover:text-foreground">Privacy Policy</Link>
-                        <Link href="#" className="hover:text-foreground">Terms of Service</Link>
+                        <Link href="/privacy" className="hover:text-foreground">Privacy Policy</Link>
+                        <Link href="/terms" className="hover:text-foreground">Terms of Service</Link>
                     </div>
                 </div>
             </div>
