@@ -1,26 +1,75 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Vibrant & Happy Palette (from Logo) */
+  --background: #FFF9F5;
+  /* Warm Creamy White */
+  --foreground: #4A4A4A;
+  /* Soft Charcoal/Brown */
+
+  /* Primary: Bubblegum Pink */
+  --primary: #FF8FAB;
+  --primary-foreground: #FFFFFF;
+
+  /* Secondary: Sky Blue */
+  --secondary: #8ECAE6;
+  --secondary-foreground: #1E3A8A;
+
+  /* Accent: Golden Yellow (Stars) */
+  --accent: #FFD93D;
+  --accent-foreground: #78350F;
+
+  --muted: #9CA3AF;
+
+  --font-outfit: "Outfit", sans-serif;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-muted: var(--muted);
+  --font-sans: var(--font-outfit), sans-serif;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-bounce-slow: bounce-slow 3s infinite;
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-20px);
+    }
+  }
+
+  @keyframes bounce-slow {
+
+    0%,
+    100% {
+      transform: translateY(-5%);
+      animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+    }
+
+    50% {
+      transform: translateY(0);
+      animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+    }
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  scroll-behavior: smooth;
 }
