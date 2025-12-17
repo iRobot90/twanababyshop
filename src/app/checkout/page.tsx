@@ -56,9 +56,7 @@ export default function CheckoutPage() {
             clearCart();
 
             // Redirect after success
-            setTimeout(() => {
-                router.push('/');
-            }, 5000);
+            router.push('/checkout/success');
 
         } catch (error) {
             console.error('Checkout failed', error);
