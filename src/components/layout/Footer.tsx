@@ -62,7 +62,7 @@ export default function Footer() {
                 </div>
 
                 <div className="flex flex-col md:flex-row items-center justify-between pt-8 border-t border-gray-200/50 text-sm text-muted-foreground">
-                    <p>© 2024 Twana Baby Shop. All rights reserved.</p>
+                    <p>© {new Date().getFullYear()} Twana Baby Shop. All rights reserved.</p>
                     <div className="flex gap-6 mt-4 md:mt-0">
                         <Link href="/privacy" className="hover:text-foreground">Privacy Policy</Link>
                         <Link href="/terms" className="hover:text-foreground">Terms of Service</Link>
