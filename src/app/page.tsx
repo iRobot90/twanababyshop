@@ -51,7 +51,7 @@ export default function Home() {
             <p className="text-muted-foreground mb-8 text-lg">
               Keep your little ones warm with our premium organic cotton layers. Limited time seasonal offers.
             </p>
-            <Link href="/shop" className="inline-flex items-center gap-2 bg-foreground text-white px-8 py-3 rounded-full font-semibold hover:bg-foreground/80 transition-colors">
+            <Link href="/shop?category=clothing" className="inline-flex items-center gap-2 bg-foreground text-white px-8 py-3 rounded-full font-semibold hover:bg-foreground/80 transition-colors">
               Shop Winter Collection <ArrowRight className="w-4 h-4" />
             </Link>
           </div>

@@ -26,14 +26,10 @@ export default function Header() {
         <header className="fixed top-0 left-0 right-0 z-50 px-6 py-3 transition-all duration-300 backdrop-blur-md bg-white/60 border-b border-white/40 shadow-sm">
             <div className="flex items-center justify-between max-w-7xl mx-auto">
                 <div className="flex items-center gap-8">
-                    <Link href="/" className="relative w-32 h-14 hover:scale-105 transition-transform duration-300">
-                        <Image
-                            src="/logo.png"
-                            alt="Twana Logo"
-                            fill
-                            className="object-contain"
-                            priority
-                        />
+                    <Link href="/" className="flex items-center gap-2 hover:scale-105 transition-transform duration-300">
+                        <span className="text-3xl md:text-4xl font-black font-outfit tracking-tighter text-foreground">
+                            Twana<span className="text-primary">.</span>
+                        </span>
                     </Link>
 
                     {/* Desktop Search */}
