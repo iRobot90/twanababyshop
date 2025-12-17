@@ -1,65 +1,36 @@
-# Baby Shop Ecommerce Store
-
-Welcome to the Baby Shop Ecommerce Store project! This React-based ecommerce platform is designed for a baby shop, offering a wide range of products including baby nutrition, care products, clothes, toys, and more. The project incorporates various pages and features to create a seamless shopping experience for users.
-
-## Features
-
-- **User Authentication:** The project includes login and signup pages to allow users to create accounts and securely log in.
-
-- **Admin Dashboard:** Admins have a dedicated login page and a dashboard where they can manage products, view individual user purchases, and perform CRUD operations on products.
-
-- **Shopping Pages:** Users can explore the shop, view products by category, add items to their cart, and proceed to checkout.
-
-- **Individual Carts:** Each user has a personal shopping cart that stores their selected items.
-
-- **Search Functionality:** Users can easily find products using the search feature.
-
-## Technologies Used
-
-- **React:** The entire frontend is built using React, taking advantage of its component-based architecture.
-
-- **React Hooks:** Various hooks such as `useState`, `useEffect`, `useRef`, and `useReducer` are employed for state management and side effects.
-
-- **React Context:** Context is utilized to manage global state, making it easier to share data between components.
-
-- **Navigation:** The project uses navigation techniques to seamlessly move between different pages.
-
-## Learning Highlights
-
-Throughout the development of this project, I gained valuable insights into React and its ecosystem. Key learnings include:
-
-- Understanding and implementing different React hooks for state management and side effects.
-
-- Mastery of context to efficiently share state across components.
-
-- Navigating between different pages within a React application.
-
-- Implementing CRUD operations and handling user authentication.
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
 
-To run the project locally, follow these steps:
+First, run the development server:
 
-1. Clone the repository: `git clone https://github.com/rishwal/cozycub.git`
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
+```
 
-2. Navigate to the project directory: `cd cozycub`
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-3. Install dependencies: `npm install`
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-4. Start the development server: `npm start`
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-Visit [http://localhost:3000](http://localhost:3000) in your browser to explore the Baby Shop Ecommerce Store.
+## Learn More
 
-## Contributing
+To learn more about Next.js, take a look at the following resources:
 
-If you'd like to contribute to the project, feel free to open issues, submit pull requests, or provide feedback. Your contributions are highly appreciated!
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## Acknowledgments
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-Special thanks to the React community for providing excellent documentation and support throughout the development process.
+## Deploy on Vercel
 
-Happy Shopping! 🍼👶
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-
-=======
-
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

@@ -1,14 +1,20 @@
-from rest_framework import generics
-from .models import Product, Category, Order
+from rest_framework import generics, filters
+from .models import Product, Category, Order, OrderItem
 from .serializers import ProductSerializer, CategorySerializer, OrderSerializer
 
-class ProductList(generics.ListCreateAPIView):
-    queryset = Product.objects.filter(available=True)
+class ProductList(generics.ListAPIView):
     serializer_class = ProductSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['name', 'description', 'category__name']
+    ordering_fields = ['price', 'created', 'name']
     
-    def perform_create(self, serializer):
-        # This will automatically handle the category_id from the request data
-        serializer.save()
+    def get_queryset(self):
+        queryset = Product.objects.filter(available=True)
+        category_slug = self.request.query_params.get('category')
+        if category_slug:
+            # Assumes the query param is the category slug (e.g. ?category=strollers)
+            queryset = queryset.filter(category__slug=category_slug)
+        return queryset
 
 class ProductDetail(generics.RetrieveAPIView):
     queryset = Product.objects.filter(available=True)
