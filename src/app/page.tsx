@@ -13,7 +13,11 @@ const CATEGORIES = [
   { id: 'strollers', name: 'Strollers', image: 'https://images.unsplash.com/photo-1591027480007-a42f6ef886c3?q=80&w=2160&auto=format&fit=crop', color: 'bg-blue-100' },
   { id: 'nursery', name: 'Nursery', image: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=2670&auto=format&fit=crop', color: 'bg-pink-100' },
   { id: 'clothing', name: 'Soft Wear', image: 'https://images.unsplash.com/photo-1519238263496-63f82a0ef963?q=80&w=2670&auto=format&fit=crop', color: 'bg-yellow-100' },
-  { id: 'toys', name: 'Play Time', image: 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?q=80&w=2670&auto=format&fit=crop', color: 'bg-green-100' },
+  { id: 'play-time', name: 'Play Time', image: 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?q=80&w=2670&auto=format&fit=crop', color: 'bg-green-100' },
+  { id: 'feeding', name: 'Feeding', image: 'https://images.unsplash.com/photo-1584143993372-e1cb8d9ec76f?q=80&w=2670&auto=format&fit=crop', color: 'bg-orange-100' },
+  { id: 'travel-gear', name: 'Travel Gear', image: 'https://images.unsplash.com/photo-1521566869897-a75d50716c02?q=80&w=2670&auto=format&fit=crop', color: 'bg-purple-100' },
+  { id: 'baby-care', name: 'Baby Care', image: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?q=80&w=2670&auto=format&fit=crop', color: 'bg-teal-100' },
+  { id: 'accessories', name: 'Accessories', image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=2574&auto=format&fit=crop', color: 'bg-indigo-100' },
 ];
 
 export default function Home() {
