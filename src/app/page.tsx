@@ -5,35 +5,49 @@ import Link from "next/link";
 import { ArrowRight, Star, Heart } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from 'react';
-import { fetchProducts } from '@/lib/api';
+import { fetchProducts, fetchCategories } from '@/lib/api';
 import { formatCurrency } from '@/lib/utils';
 
-// Static categories for now
-const CATEGORIES = [
-  { id: 'strollers', name: 'Strollers', image: 'https://images.unsplash.com/photo-1591027480007-a42f6ef886c3?q=80&w=2160&auto=format&fit=crop', color: 'bg-blue-100' },
-  { id: 'nursery', name: 'Nursery', image: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?q=80&w=2670&auto=format&fit=crop', color: 'bg-pink-100' },
-  { id: 'clothing', name: 'Soft Wear', image: 'https://images.unsplash.com/photo-1519238263496-63f82a0ef963?q=80&w=2670&auto=format&fit=crop', color: 'bg-yellow-100' },
-  { id: 'play-time', name: 'Play Time', image: 'https://images.unsplash.com/photo-1596461404969-9ae70f2830c1?q=80&w=2670&auto=format&fit=crop', color: 'bg-green-100' },
-  { id: 'feeding', name: 'Feeding', image: 'https://images.unsplash.com/photo-1584143993372-e1cb8d9ec76f?q=80&w=2670&auto=format&fit=crop', color: 'bg-orange-100' },
-  { id: 'travel-gear', name: 'Travel Gear', image: 'https://images.unsplash.com/photo-1521566869897-a75d50716c02?q=80&w=2670&auto=format&fit=crop', color: 'bg-purple-100' },
-  { id: 'baby-care', name: 'Baby Care', image: 'https://images.unsplash.com/photo-1555252333-9f8e92e65df9?q=80&w=2670&auto=format&fit=crop', color: 'bg-teal-100' },
-  { id: 'accessories', name: 'Accessories', image: 'https://images.unsplash.com/photo-1542838132-92c53300491e?q=80&w=2574&auto=format&fit=crop', color: 'bg-indigo-100' },
-];
+interface CategoryItem {
+  id: number;
+  slug: string;
+  name: string;
+  image: string;
+}
+
+interface ProductItem {
+  id: number;
+  name: string;
+  slug: string;
+  price: string;
+  image: string;
+  description?: string;
+  category?: { name?: string; slug?: string };
+}
 
 export default function Home() {
-  const [featuredProducts, setFeaturedProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<CategoryItem[]>([]);
+  const [featuredProducts, setFeaturedProducts] = useState<ProductItem[]>([]);
 
   useEffect(() => {
-    const loadProducts = async () => {
+    const loadContent = async () => {
       try {
-        const data = await fetchProducts();
-        // Take first 3 products as featured
-        setFeaturedProducts(data.slice(0, 3));
+        const [productsData, categoriesData] = await Promise.all([
+          fetchProducts(),
+          fetchCategories(),
+        ]);
+
+        const rankedProducts = [...productsData]
+          .sort((a: ProductItem, b: ProductItem) => Number(b.price) - Number(a.price))
+          .slice(0, 6);
+
+        setFeaturedProducts(rankedProducts);
+        setCategories(categoriesData || []);
       } catch (err) {
-        console.error("Failed to load products", err);
+        console.error("Failed to load catalog content", err);
       }
     };
-    loadProducts();
+    loadContent();
   }, []);
 
   return (
@@ -73,20 +87,24 @@ export default function Home() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {CATEGORIES.map((cat) => (
-            <Link key={cat.id} href={`/shop?category=${cat.id}`} className="group cursor-pointer">
-              <div className={`relative aspect-[4/5] rounded-3xl overflow-hidden mb-4 shadow-sm group-hover:shadow-md transition-all`}>
-                <Image
-                  src={cat.image}
-                  alt={cat.name}
-                  fill
-                  className="object-cover group-hover:scale-110 transition-transform duration-500"
-                />
-                <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
-              </div>
-              <h3 className="text-xl font-bold text-center group-hover:text-primary transition-colors">{cat.name}</h3>
-            </Link>
-          ))}
+          {categories.length > 0 ? (
+            categories.map((cat) => (
+              <Link key={cat.id} href={`/shop?category=${cat.slug}`} className="group cursor-pointer">
+                <div className="relative aspect-[4/5] rounded-3xl overflow-hidden mb-4 shadow-sm group-hover:shadow-md transition-all">
+                  <Image
+                    src={cat.image || 'https://images.unsplash.com/photo-1591027480007-a42f6ef886c3?q=80&w=2160&auto=format&fit=crop'}
+                    alt={cat.name}
+                    fill
+                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
+                </div>
+                <h3 className="text-xl font-bold text-center group-hover:text-primary transition-colors">{cat.name}</h3>
+              </Link>
+            ))
+          ) : (
+            <p className="col-span-full text-center text-muted-foreground">No categories available yet.</p>
+          )}
         </div>
       </section>
 
@@ -97,7 +115,7 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {featuredProducts.length > 0 ? (
               featuredProducts.map((prod) => (
-                <Link href="/product" key={prod.id} className="group bg-white rounded-3xl p-4 hover:-translate-y-2 transition-transform duration-300 shadow-sm border border-white/50">
+                <Link href={`/product?slug=${prod.slug}`} key={prod.id} className="group bg-white rounded-3xl p-4 hover:-translate-y-2 transition-transform duration-300 shadow-sm border border-white/50">
                   <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100 mb-4">
                     {prod.image && <Image
                       src={prod.image}
@@ -118,6 +136,7 @@ export default function Home() {
                       <Star className="w-4 h-4 fill-current" />
                     </div>
                     <h3 className="text-xl font-bold mb-1 line-clamp-1">{prod.name}</h3>
+                    <p className="text-sm text-muted-foreground mb-2">{prod.category?.name || 'Featured item'}</p>
                     <p className="text-lg text-muted-foreground">{formatCurrency(Number(prod.price))}</p>
                   </div>
                 </Link>

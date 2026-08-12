@@ -4,6 +4,7 @@ import Offcanvas from 'react-bootstrap/Offcanvas';
 import { FaArrowRight } from "react-icons/fa";
 import { FaUserCircle } from "react-icons/fa";
 import { FaListUl } from "react-icons/fa";
+import { FaPlusCircle } from "react-icons/fa";
 import { useNavigate } from 'react-router-dom';
 
 
@@ -38,11 +39,14 @@ const AdminNavbar = () => {
                         <FaUserCircle className='icons' />
                         <h5>Users</h5>
                     </div>
-                    <div className="products" onClick={() => navigate('products')}>
+                    <div className="products" onClick={() => navigate('/admin/products')}>
                         <FaListUl className='icons' />
                         <h5>Products</h5>
                     </div>
-            
+                    <div className="create-products" onClick={() => navigate('/admin/create-products')}>
+                        <FaPlusCircle className='icons' />
+                        <h5>Upload Product</h5>
+                    </div>
                 </Offcanvas.Body>
             </Offcanvas>
         </div>

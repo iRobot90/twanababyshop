@@ -12,6 +12,8 @@ import CategoryPage from './pages/categories/CategoryPage';
 import ProductDetailPage from './pages/ProductDetailPage';
 import Checkout from './pages/Checkout';
 import ComingSoon from './pages/ComingSoon';
+import AdminDashboard from './pages/AdminDashboard';
+import AdminProductUpload from './pages/AdminProductUpload';
 import { GlobalStyles } from '@mui/material';
 
 // Global styles
@@ -81,6 +83,8 @@ function App() {
                 <Route path="/category/:categoryId" element={<CategoryPage />} />
                 <Route path="/product/:slug" element={<ProductDetailPage />} />
                 <Route path="/checkout" element={<Checkout />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/admin/create-products" element={<AdminProductUpload />} />
 
                 {/* Footer Links - Coming Soon */}
                 <Route path="/new-arrivals" element={<ComingSoon title="New Arrivals" />} />

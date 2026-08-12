@@ -38,9 +38,7 @@ function ShopContent() {
                     search: searchParam || undefined,
                     ordering: sortOrder || undefined
                 });
-                setProducts(data);
-            } catch (e) {
-                console.error(e);
+                setProducts(Array.isArray(data) ? data : []);
             } finally {
                 setLoading(false);
             }

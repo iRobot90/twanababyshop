@@ -94,8 +94,8 @@ const Header = () => {
             {adminsignedin ? (
               <>
                 <Nav.Link onClick={() => navigate("/admin")}>Admin</Nav.Link>
-                <Nav.Link onClick={() => navigate("admin/create-products")}>
-                  Create Products
+                <Nav.Link onClick={() => navigate("/admin/create-products")}>
+                  Upload Product
                 </Nav.Link>
               </>
             ) : (

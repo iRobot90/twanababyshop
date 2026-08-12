@@ -1,8 +1,8 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
 
 @layer base {
   :root {
@@ -79,7 +79,8 @@
   }
 
   button, [type='button'], [type='reset'], [type='submit'] {
-    @apply cursor-pointer font-inherit border-none outline-none;
+    @apply cursor-pointer border-none outline-none;
+    font: inherit;
   }
 
   /* Custom container class that matches the design system */

@@ -35,6 +35,7 @@ export default function ProductContainer() {
     const slug = searchParams.get('slug');
 
     const [product, setProduct] = useState<any>(null);
+    const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
     const [selectedColor, setSelectedColor] = useState<any>(null);
     const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
     const [viewMode, setViewMode] = useState<'3d' | 'image'>('3d');
@@ -51,18 +52,15 @@ export default function ProductContainer() {
     useEffect(() => {
         const loadProduct = async () => {
             try {
-                if (slug) {
-                    const data = await fetchProduct(slug);
-                    setProduct(data);
+                const products = await fetchProducts();
+                const foundProduct = slug
+                    ? products.find((p: any) => p.slug === slug) || products[0]
+                    : products.find((p: any) => p.slug === 'cloud-nine-stroller') || products[0];
+
+                if (foundProduct) {
+                    setProduct(foundProduct);
+                    setRelatedProducts(products.filter((p: any) => p.id !== foundProduct.id).slice(0, 3));
                     setSelectedColor(PRODUCT_COLORS[0]);
-                } else {
-                    // Fallback to default if no slug
-                    const products = await fetchProducts({ category: 'strollers' });
-                    const foundProduct = products.find((p: any) => p.slug === 'cloud-nine-stroller') || products[0];
-                    if (foundProduct) {
-                        setProduct(foundProduct);
-                        setSelectedColor(PRODUCT_COLORS[0]);
-                    }
                 }
             } catch (error) {
                 console.error("Failed to load product", error);
@@ -80,7 +78,8 @@ export default function ProductContainer() {
             price: Number(product.price),
             quantity: 1,
             image: product.image,
-            color: selectedColor.name
+            color: selectedColor.name,
+            stock_quantity: Number(product.stock_quantity ?? 0),
         });
         setAdded(true);
         setTimeout(() => setAdded(false), 2000);
@@ -138,6 +137,9 @@ export default function ProductContainer() {
                         <p className="text-2xl md:text-3xl font-bold text-primary">
                             {formatCurrency(Number(product.price))}
                         </p>
+                        <div className={`mt-3 inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ${Number(product.stock_quantity ?? 0) > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                            {Number(product.stock_quantity ?? 0) > 0 ? `${product.stock_quantity} in stock` : 'Out of stock'}
+                        </div>
                     </div>
 
                     <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
@@ -187,11 +189,11 @@ export default function ProductContainer() {
                         <div className="flex flex-col sm:flex-row gap-4">
                             <button
                                 onClick={handleAddToCart}
-                                disabled={added}
+                                disabled={added || Number(product.stock_quantity ?? 0) <= 0}
                                 className={`flex-1 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 ${added
                                         ? 'bg-green-500 text-white'
                                         : 'bg-foreground text-white hover:bg-foreground/90'
-                                    }`}
+                                    } ${Number(product.stock_quantity ?? 0) <= 0 ? 'cursor-not-allowed opacity-70' : ''}`}
                             >
                                 {added ? (
                                     <>
@@ -219,6 +221,36 @@ export default function ProductContainer() {
                     </button>
                 </div>
             </div>
+
+            {relatedProducts.length > 0 && (
+                <div className="mt-16">
+                    <div className="mb-6 flex items-center justify-between">
+                        <h2 className="text-2xl font-black">Recommended for you</h2>
+                        <span className="text-sm text-muted-foreground">Pair with your cart selection</span>
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-3">
+                        {relatedProducts.map((item) => (
+                            <div key={item.id} className="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm">
+                                <div className="relative mb-4 aspect-square overflow-hidden rounded-2xl bg-gray-100">
+                                    {item.image && <Image src={item.image} alt={item.name} fill className="object-cover" />}
+                                </div>
+                                <h3 className="font-bold">{item.name}</h3>
+                                <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{item.description}</p>
+                                <div className="mt-4 flex items-center justify-between">
+                                    <span className="font-bold text-primary">{formatCurrency(Number(item.price))}</span>
+                                    <button
+                                        type="button"
+                                        onClick={() => addToCart({ id: item.id, name: item.name, price: Number(item.price), quantity: 1, image: item.image, stock_quantity: Number(item.stock_quantity ?? 0) })}
+                                        className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-white"
+                                    >
+                                        Add
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <AnimatePresence>
                 {isSizeGuideOpen && <SizeGuideModal onClose={() => setIsSizeGuideOpen(false)} />}

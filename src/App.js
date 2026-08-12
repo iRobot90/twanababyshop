@@ -30,7 +30,7 @@ function App() {
     <Data>
       <div className="App">
         <Toaster />
-        <BrowserRouter basename='/cozycub'>
+        <BrowserRouter>
           <Header />
 
           <Routes>

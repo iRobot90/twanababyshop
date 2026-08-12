@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Cloud Nine Smart Stroller",
+    "slug": "cloud-nine-stroller",
+    "category": "Strollers",
+    "price": "115000",
+    "description": "Premium stroller imported from catalog export",
+    "image": "https://images.unsplash.com/photo-1591027480007-a42f6ef886c3?q=80&w=2160&auto=format&fit=crop",
+    "age_group": "0-3y",
+    "available": true
+  },
+  {
+    "name": "Organic Cotton Onesie Set",
+    "slug": "organic-cotton-onesie-set",
+    "category": "Clothing",
+    "price": "6500",
+    "description": "Soft and breathable baby clothing",
+    "image": "https://images.unsplash.com/photo-1519238263496-63f82a0ef963?q=80&w=2670&auto=format&fit=crop",
+    "age_group": "0-6m",
+    "available": true
+  },
+  {
+    "name": "MDF Baby Cot",
+    "slug": "mdf-baby-cot",
+    "category": "Nursery",
+    "price": "15000",
+    "description": "Premium nursery cot",
+    "image": "https://images.unsplash.com/photo-1505693314120-0d443867891c?q=80&w=2636&auto=format&fit=crop",
+    "age_group": "0-3y",
+    "available": true
+  }
+]

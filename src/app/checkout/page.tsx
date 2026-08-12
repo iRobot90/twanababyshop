@@ -47,15 +47,13 @@ export default function CheckoutPage() {
             };
 
             // 2. Simulate Payment Delay (M-Pesa / Stripe)
-            await new Promise(resolve => setTimeout(resolve, 2000));
+            await new Promise(resolve => setTimeout(resolve, 1200));
 
             // 3. Create Order in Backend
             await createOrder(orderPayload);
 
             setSuccess(true);
             clearCart();
-
-            // Redirect after success
             router.push('/checkout/success');
 
         } catch (error) {

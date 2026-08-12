@@ -8,6 +8,7 @@ export interface CartItem {
     quantity: number;
     image: string;
     color?: string; // Selected color
+    stock_quantity?: number;
 }
 
 interface CartStore {
@@ -33,13 +34,21 @@ export const useCartStore = create<CartStore>()(
             addToCart: (newItem) => set((state) => {
                 const existingItem = state.items.find(i => i.id === newItem.id && i.color === newItem.color);
                 if (existingItem) {
+                    const nextQuantity = existingItem.quantity + 1;
+                    if (typeof existingItem.stock_quantity === 'number' && nextQuantity > existingItem.stock_quantity) {
+                        return state;
+                    }
                     return {
                         items: state.items.map(i =>
                             (i.id === newItem.id && i.color === newItem.color)
-                                ? { ...i, quantity: i.quantity + 1 }
+                                ? { ...i, quantity: nextQuantity }
                                 : i
                         )
                     };
+                }
+                const stockQuantity = typeof newItem.stock_quantity === 'number' ? newItem.stock_quantity : 999;
+                if (stockQuantity <= 0) {
+                    return state;
                 }
                 return { items: [...state.items, { ...newItem, quantity: 1 }] };
             }),

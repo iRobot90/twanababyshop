@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
 import "./globals.css";
-import Header from "@/components/layout/Header";
 import SmoothScroll from "@/components/layout/SmoothScroll";
+import StorefrontShell from "@/components/layout/StorefrontShell";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -15,9 +15,6 @@ export const metadata: Metadata = {
   description: "Experience the softest baby essentials.",
 };
 
-import Footer from "@/components/layout/Footer";
-import GlobalCartDrawer from "@/components/cart/GlobalCartDrawer";
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -27,11 +24,8 @@ export default function RootLayout({
     <html lang="en" className={outfit.variable}>
       <body className="antialiased selection:bg-indigo-100 selection:text-indigo-900">
         <SmoothScroll>
-          <Header />
-          {children}
-          <Footer />
+          <StorefrontShell>{children}</StorefrontShell>
         </SmoothScroll>
-        <GlobalCartDrawer />
       </body>
     </html>
   );

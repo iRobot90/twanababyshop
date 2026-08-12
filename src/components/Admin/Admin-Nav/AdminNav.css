@@ -1,34 +1,58 @@
 
-#admin-nav-container #side-nav{
-    background-color: #36454f;
+#admin-nav-container #side-nav {
+    background: linear-gradient(180deg, #1c2530 0%, #2d3a46 100%);
     color: white;
+    box-shadow: 0 14px 30px rgba(15, 23, 42, 0.35);
 }
- .btn-close {
+
+.btn-close {
     color: red !important;
-  }
-.nav-body{
-    padding: 0 !important;
-  }
-.nav-body div{
-  cursor: pointer;
+}
+
+.nav-body {
+    padding: 12px 12px 0 !important;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.nav-body div {
+    cursor: pointer;
     width: 100%;
-    height: 55px;
-    background-color: white;
-    margin-top: 10px;
+    height: 56px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 12px;
     display: flex;
     justify-content: flex-start;
-    padding-left: 10px;
+    padding: 0 16px;
     align-items: center;
-    border-left: 4px solid black;
-    color: black;
+    border-left: 4px solid #1d4ed8;
+    color: #111827;
+    box-shadow: 0 8px 18px rgba(15, 23, 42, 0.08);
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
-.nav-body div .icons{
-  font-size: 1.5rem;
-  color: black;
 
+.nav-body div:hover {
+    transform: translateX(2px);
+    box-shadow: 0 12px 20px rgba(15, 23, 42, 0.12);
+    border-color: #0f172a;
 }
-.nav-body div h5{
-    margin-left: 10px;
+
+.nav-body div .icons {
+    font-size: 1.25rem;
+    color: #111827;
+}
+
+.nav-body div h5 {
+    margin: 0 0 0 12px;
+    font-size: 0.96rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+}
+
+.nav-body .create-products {
+    background: linear-gradient(135deg, #eef4ff 0%, #dbeafe 100%);
+    border-left: 4px solid #2563eb;
 }
 
 
