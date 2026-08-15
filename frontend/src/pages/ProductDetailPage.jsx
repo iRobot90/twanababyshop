@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { Container, Typography, Button, Box, Grid, Skeleton, Alert, IconButton, Tooltip } from '@mui/material';
+import { Container, Typography, Button, Box, Grid, Skeleton, Alert, IconButton, Tooltip, Switch, FormControlLabel } from '@mui/material';
 import { useCart } from '../contexts/CartContext';
 import api from '../api';
+import Product3DViewer from '../components/Product3DViewer';
 
 const ProductDetailPage = () => {
   const { slug } = useParams();
@@ -11,6 +12,7 @@ const ProductDetailPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedColor, setSelectedColor] = useState(null);
+  const [show3D, setShow3D] = useState(false);
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 });
   const [isZoomed, setIsZoomed] = useState(false);
 
@@ -75,7 +77,22 @@ const ProductDetailPage = () => {
     <Container maxWidth="lg" sx={{ py: 8 }}>
       <Grid container spacing={6}>
         <Grid item xs={12} md={6}>
-          <Box
+          <Box sx={{ display: 'flex', gap: 2, flexDirection: 'column' }}>
+            <Box sx={{ display: 'flex', justifyContent: 'center', mb: 1 }}>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={show3D}
+                    onChange={() => setShow3D((s) => !s)}
+                    name="show3D"
+                    color="primary"
+                    disabled={!(product && (product.model_url || product.modelUrl || product.model || product.gltf))}
+                  />
+                }
+                label="3D Preview"
+              />
+            </Box>
+            <Box
             sx={{
               position: 'relative',
               overflow: 'hidden',
@@ -89,19 +106,33 @@ const ProductDetailPage = () => {
             onMouseLeave={() => setIsZoomed(false)}
             onMouseMove={handleMouseMove}
           >
-            <Box
-              component="img"
-              src={product.image || '/images/category-placeholder.jpg'}
-              alt={product.name}
-              sx={{
-                width: '100%',
-                height: '100%',
-                objectFit: 'cover',
-                transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
-                transform: isZoomed ? 'scale(2)' : 'scale(1)',
-                transition: 'transform 0.1s ease-out'
-              }}
-            />
+              {show3D ? (
+                (product.model_url || product.modelUrl || product.model || product.gltf) ? (
+                  <Product3DViewer
+                    modelUrl={product.model_url || product.modelUrl || product.model || product.gltf}
+                    color={selectedColor || '#E13025'}
+                    style={{ width: '100%', height: '100%' }}
+                  />
+                ) : (
+                  <Box className="w-full h-full flex items-center justify-center">
+                    <Alert severity="info">3D model not available for this product.</Alert>
+                  </Box>
+                )
+              ) : (
+                <Box
+                  component="img"
+                  src={product.image || '/images/category-placeholder.jpg'}
+                  alt={product.name}
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    transformOrigin: `${zoomPosition.x}% ${zoomPosition.y}%`,
+                    transform: isZoomed ? 'scale(2)' : 'scale(1)',
+                    transition: 'transform 0.1s ease-out'
+                  }}
+                />
+              )}
           </Box>
           <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: 'block', textAlign: 'center' }}>
             Hover image to zoom

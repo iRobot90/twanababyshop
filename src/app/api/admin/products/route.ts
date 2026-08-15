@@ -3,6 +3,7 @@ import { requireAdmin } from '@/lib/admin/auth';
 import { uploadProductImages } from '@/lib/products/storage';
 import type { ProductRecord } from '@/lib/products/types';
 import { MAX_IMAGES_PER_PRODUCT, validateProductForm } from '@/lib/products/validation';
+import { isMissingProductsTableError } from '@/lib/supabase/schema';
 
 export async function GET() {
     const { supabase, error } = await requireAdmin();
@@ -16,7 +17,7 @@ export async function GET() {
         .order('created_at', { ascending: false });
 
     if (dbError) {
-        const message = dbError.message.includes('does not exist') || dbError.message.includes('schema cache')
+        const message = isMissingProductsTableError(dbError)
             ? 'The Supabase products table has not been created yet. Run the SQL in supabase/migrations/20260327120000_create_products.sql in your Supabase SQL Editor.'
             : dbError.message;
         return NextResponse.json({ error: message }, { status: 500 });

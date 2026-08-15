@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase/server';
+import { isMissingProductsTableError } from '@/lib/supabase/schema';
 
 function slugify(value: string) {
     return value.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
@@ -20,7 +21,11 @@ export async function GET(request: NextRequest) {
         .order('created_at', { ascending: false });
 
     if (error) {
-        return NextResponse.json({ error: error.message }, { status: 500 });
+        const message = isMissingProductsTableError(error)
+            ? 'The Supabase products table has not been created yet. Run the SQL in supabase/migrations/20260327120000_create_products.sql in your Supabase SQL Editor.'
+            : error.message;
+
+        return NextResponse.json({ error: message }, { status: 500 });
     }
 
     const normalized = (data ?? []).map((product: any) => {
