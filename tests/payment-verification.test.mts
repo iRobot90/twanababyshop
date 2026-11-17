@@ -1,0 +1,12 @@
+import {test} from 'node:test';
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import {verifiedPaymentStatus,isOrderReference,isDurablySettled} from '../src/lib/payments/verification.ts';
+const order={reference:'twa-'+ 'a'.repeat(32),amount:2500,currency:'KES',customer:{email:'buyer@example.com'}};
+const payment={...order,domain:'test',status:'success'};
+test('verified test success matches all order fields',()=>assert.equal(verifiedPaymentStatus(payment,order),'success'));
+test('live and absent domains cannot settle even with matching details',()=>{for(const domain of ['live',undefined,null,'TEST'])assert.throws(()=>verifiedPaymentStatus({...payment,domain},order));});
+test('all provider/order mismatches fail closed before status reporting',()=>{for(const change of [{reference:'other'},{amount:2501},{amount:'2500'},{currency:'USD'},{customer:{email:'other@example.com'}},{customer:null},{status:'unknown'}])assert.throws(()=>verifiedPaymentStatus({...payment,...change},order));});
+test('pending and terminal provider states remain distinct',()=>{for(const status of ['pending','ongoing','queued','processing','failed','abandoned','reversed'])assert.equal(verifiedPaymentStatus({...payment,status},order),status);});
+test('only durable paid database states acknowledge success webhook',()=>{for(const status of ['success','pending','failed','abandoned','reversed','unknown'])assert.equal(isDurablySettled(status),false);for(const status of ['paid','paid_review'])assert.equal(isDurablySettled(status),true);const source=readFileSync(new URL('../src/app/api/payments/webhook/route.ts',import.meta.url),'utf8');assert.match(source,/if \(!isDurablySettled\(status\)\).*status: 503/);});
+test('new provider-compatible references and legacy receipts accepted',()=>{assert.ok(isOrderReference(order.reference));assert.ok(isOrderReference(order.reference.replace('twa-','twa_')));for(const value of [null,{},'twa-abc',order.reference+'a','twa/'+ 'a'.repeat(32)])assert.equal(isOrderReference(value),false);const source=readFileSync(new URL('../src/app/api/checkout/route.ts',import.meta.url),'utf8');assert.ok(source.includes('`twa-${randomBytes(16)'));});

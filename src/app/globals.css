@@ -8,7 +8,7 @@
   /* Soft Charcoal/Brown */
 
   /* Primary: Bubblegum Pink */
-  --primary: #FF8FAB;
+  --primary: #A62D56;
   --primary-foreground: #FFFFFF;
 
   /* Secondary: Sky Blue */
@@ -19,7 +19,7 @@
   --accent: #FFD93D;
   --accent-foreground: #78350F;
 
-  --muted: #9CA3AF;
+  --muted: #62626E;
 
   --font-outfit: "Outfit", sans-serif;
 }
@@ -73,3 +73,11 @@ body {
   overflow-x: hidden;
   scroll-behavior: smooth;
 }
+:root { --muted-foreground: #62626E; }
+@theme inline { --color-muted-foreground: var(--muted-foreground); }
+:focus-visible { outline: 3px solid #245577; outline-offset: 4px; }
+button, a, input, select { -webkit-tap-highlight-color: transparent; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; opacity: .6; }
+@media(prefers-reduced-motion:reduce) { *,*::before,*::after { animation:none!important; transition:none!important; scroll-behavior:auto!important; } }
+dialog::backdrop { background:rgba(30,25,35,.5); }

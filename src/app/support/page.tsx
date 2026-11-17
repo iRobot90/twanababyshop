@@ -1,74 +1,80 @@
-'use client';
-
-import { Mail, Phone, MapPin } from 'lucide-react';
-
+import Link from "next/link";
 export default function SupportPage() {
-    return (
-        <main className="min-h-screen pt-24 pb-12 px-6 bg-gray-50">
-            <div className="container mx-auto max-w-5xl">
-                <h1 className="text-5xl font-bold mb-12 font-outfit text-center">How can we help?</h1>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                    {/* Contact Info */}
-                    <div id="contact" className="bg-white p-8 rounded-3xl shadow-sm h-fit scroll-mt-32">
-                        <h2 className="text-2xl font-bold mb-6">Get in Touch</h2>
-                        <div className="space-y-6">
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                                    <Mail className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <p className="font-semibold">Email Us</p>
-                                    <p className="text-muted-foreground">hello@twanababyshop.com</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                                    <Phone className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <p className="font-semibold">Call Us</p>
-                                    <p className="text-muted-foreground">+254 700 000 000</p>
-                                </div>
-                            </div>
-                            <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary">
-                                    <MapPin className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <p className="font-semibold">Visit Us</p>
-                                    <p className="text-muted-foreground">Nairobi, Kenya</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* FAQ & Policies */}
-                    <div className="space-y-6">
-                        <div id="faq" className="scroll-mt-32">
-                            <h2 className="text-2xl font-bold mb-6">Frequently Asked Questions</h2>
-
-                            <div className="bg-white p-6 rounded-2xl shadow-sm mb-4">
-                                <h3 className="font-bold text-lg mb-2">How long is delivery?</h3>
-                                <p className="text-muted-foreground">We deliver within 24-48 hours in Nairobi and 3-5 days countrywide.</p>
-                            </div>
-
-                            <div className="bg-white p-6 rounded-2xl shadow-sm mb-4">
-                                <h3 className="font-bold text-lg mb-2">Do you have a physical store?</h3>
-                                <p className="text-muted-foreground">We are primarily online but offer pickups from our Westlands depot.</p>
-                            </div>
-                        </div>
-
-                        <div id="shipping" className="scroll-mt-32">
-                            <h2 className="text-2xl font-bold mb-6">Policies</h2>
-                            <div className="bg-white p-6 rounded-2xl shadow-sm">
-                                <h3 className="font-bold text-lg mb-2">Return Policy</h3>
-                                <p className="text-muted-foreground">We accept returns within 7 days for unused items in original packaging.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
-    );
+  const email = process.env.NEXT_PUBLIC_SUPPORT_EMAIL;
+  return (
+    <main className="mx-auto max-w-5xl px-6 pb-24 pt-32">
+      <h1 className="text-5xl font-black">A little help, right here.</h1>
+      <p className="my-6 max-w-2xl text-lg text-muted-foreground">
+        Questions about an item, your basket or a payment? Start with the
+        essentials below.
+      </p>
+      <div className="grid gap-6 md:grid-cols-2">
+        <section id="contact" className="scroll-mt-28 rounded-3xl bg-white p-8">
+          <h2 className="text-2xl font-bold">Talk to Twaana</h2>
+          {email ? (
+            <a
+              href={"mailto:" + email}
+              className="mt-5 inline-block text-primary underline"
+            >
+              {email}
+            </a>
+          ) : (
+            <p className="mt-5">
+              Store contact details are being confirmed. Please do not place a
+              live order until customer support and delivery arrangements are
+              available.
+            </p>
+          )}
+          <p className="mt-5 text-sm text-muted-foreground">
+            For payment questions, keep your order reference. Never send your
+            card details, PIN or one-time code.
+          </p>
+        </section>
+        <section id="faq" className="scroll-mt-28 rounded-3xl bg-white p-8">
+          <h2 className="text-2xl font-bold">Good to know</h2>
+          <details className="mt-5 border-b py-3">
+            <summary className="cursor-pointer font-bold">
+              Which currency will I see?
+            </summary>
+            <p className="mt-3">
+              Prices are displayed in Kenyan shillings (KES), including cents
+              where applicable.
+            </p>
+          </details>
+          <details className="border-b py-3">
+            <summary className="cursor-pointer font-bold">
+              Payment still pending?
+            </summary>
+            <p className="mt-3">
+              Use “Check again” on your payment page. Do not pay a second time
+              if you have already been charged.
+            </p>
+          </details>
+          <details className="py-3">
+            <summary className="cursor-pointer font-bold">
+              How do I choose the right size?
+            </summary>
+            <p className="mt-3">
+              Use the product’s own measurements and manufacturer guidance.{" "}
+              <Link href="/size-guide" className="text-primary underline">
+                Read our sizing tips
+              </Link>
+              .
+            </p>
+          </details>
+        </section>
+        <section
+          id="shipping"
+          className="scroll-mt-28 rounded-3xl border p-8 md:col-span-2"
+        >
+          <h2 className="text-2xl font-bold">Delivery & returns</h2>
+          <p className="mt-4">
+            Delivery locations, charges, pickup options and returns terms must
+            be confirmed by the store before live checkout opens. We do not
+            currently promise a delivery time or cross-border service.
+          </p>
+        </section>
+      </div>
+    </main>
+  );
 }

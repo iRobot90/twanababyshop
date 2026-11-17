@@ -6,6 +6,7 @@ import { PackagePlus, LayoutGrid, LogOut, Store } from 'lucide-react';
 import { createClient } from '@/lib/supabase/client';
 
 const NAV = [
+    {href:'/admin/orders',label:'Orders',icon:LayoutGrid},
     { href: '/admin/products', label: 'Inventory', icon: LayoutGrid },
     { href: '/admin/products/new', label: 'Add Product', icon: PackagePlus },
 ];
@@ -26,7 +27,7 @@ export default function AdminNav() {
             <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
                 <div className="flex items-center gap-6">
                     <Link href="/admin/products" className="text-xl font-black tracking-tight">
-                        Twana<span className="text-primary">.</span> Admin
+                        Twaana<span className="text-primary">.</span> Admin
                     </Link>
                     <nav className="hidden items-center gap-2 md:flex">
                         {NAV.map(({ href, label, icon: Icon }) => {

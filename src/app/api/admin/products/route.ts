@@ -1,8 +1,9 @@
+import {readBody} from '@/lib/payments/body';
 import { NextResponse } from 'next/server';
 import { requireAdmin } from '@/lib/admin/auth';
 import { uploadProductImages } from '@/lib/products/storage';
 import type { ProductRecord } from '@/lib/products/types';
-import { MAX_IMAGES_PER_PRODUCT, validateProductForm } from '@/lib/products/validation';
+import { MAX_IMAGES_PER_PRODUCT, MAX_IMAGE_SIZE_BYTES, validateProductForm } from '@/lib/products/validation';
 import { isMissingProductsTableError } from '@/lib/supabase/schema';
 
 export async function GET() {
@@ -32,8 +33,10 @@ export async function POST(request: Request) {
         return NextResponse.json({ error }, { status: error === 'Admin access required' ? 403 : 401 });
     }
 
+    if (!process.env.APP_ORIGIN || request.headers.get('origin') !== process.env.APP_ORIGIN) return NextResponse.json({error:'Invalid request origin'},{status:403});
     try {
-        const formData = await request.formData();
+        const bytes = await readBody(request, MAX_IMAGES_PER_PRODUCT * MAX_IMAGE_SIZE_BYTES + 65536);
+        const formData = await new Response(new Uint8Array(bytes), {headers:{'Content-Type':request.headers.get('content-type')||''}}).formData();
         const validation = validateProductForm({
             title: formData.get('title'),
             description: formData.get('description'),
@@ -100,7 +103,7 @@ export async function POST(request: Request) {
             .single();
 
         if (insertError) {
-            return NextResponse.json({ error: insertError.message }, { status: 500 });
+            return NextResponse.json({ error: 'Unable to save product' }, { status: 500 });
         }
 
         return NextResponse.json(
@@ -111,7 +114,9 @@ export async function POST(request: Request) {
             { status: 201 }
         );
     } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unexpected server error';
+        if (err instanceof Error && err.message === 'Request too large') return NextResponse.json({error:'Upload exceeds the allowed size'},{status:413});
+        if (err instanceof TypeError) return NextResponse.json({error:'Invalid upload form'},{status:400});
+        const message = 'Unable to save this product. Check its details and try again.';
         return NextResponse.json({ error: message }, { status: 500 });
     }
 }

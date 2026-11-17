@@ -1,260 +1,205 @@
-'use client';
-import { useState, useEffect } from 'react';
-import Image from 'next/image';
-import { Canvas } from '@react-three/fiber';
-import { Environment, Center } from '@react-three/drei';
-import ProductScene from '@/components/three/ProductScene';
-import BabyStroller from '@/components/three/BabyStroller';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Ruler, ShoppingCart, Star, Check, Heart, ImageOff, Box, ShieldCheck, Leaf } from 'lucide-react';
-import SizeGuideModal from './SizeGuideModal';
-import { useCartStore } from '@/lib/store';
-import { fetchProducts, fetchProduct } from '@/lib/api';
-import { useSearchParams } from 'next/navigation';
-import { formatCurrency } from '@/lib/utils';
-
-// Loading State
-const LoadingSkeleton = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center w-full h-full p-6 animate-pulse">
-        <div className="w-full aspect-square bg-gray-200 rounded-[3rem]" />
-        <div className="flex flex-col gap-8">
-            <div className="h-8 w-1/3 bg-gray-200 rounded-full" />
-            <div className="h-16 w-3/4 bg-gray-200 rounded-lg" />
-            <div className="h-10 w-1/4 bg-gray-200 rounded-lg" />
-            <div className="space-y-2">
-                <div className="h-4 w-full bg-gray-200 rounded" />
-                <div className="h-4 w-5/6 bg-gray-200 rounded" />
-            </div>
-            <div className="h-14 w-full bg-gray-200 rounded-full" />
-        </div>
-    </div>
-);
-
+"use client";
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { fetchProducts, fetchProduct } from "@/lib/api";
+import { useCartStore } from "@/lib/store";
+import { formatCurrency } from "@/lib/utils";
+type Product = {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  image: string;
+  description: string;
+  stock_quantity: number;
+  category: { name: string; slug: string };
+};
 export default function ProductContainer() {
-    const searchParams = useSearchParams();
-    const slug = searchParams.get('slug');
-
-    const [product, setProduct] = useState<any>(null);
-    const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
-    const [selectedColor, setSelectedColor] = useState<any>(null);
-    const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
-    const [viewMode, setViewMode] = useState<'3d' | 'image'>('3d');
-    const { addToCart } = useCartStore();
-    const [added, setAdded] = useState(false);
-
-    // Mock colors for the 3D model since DB might not have hex codes yet
-    const PRODUCT_COLORS = [
-        { name: 'Mist Blue', value: '#A5C8E4', hex: 'bg-[#A5C8E4]' },
-        { name: 'Blush Pink', value: '#F4C2C2', hex: 'bg-[#F4C2C2]' },
-        { name: 'Sage Green', value: '#9DC183', hex: 'bg-[#9DC183]' },
-    ];
-
-    useEffect(() => {
-        const loadProduct = async () => {
-            try {
-                const products = await fetchProducts();
-                const foundProduct = slug
-                    ? products.find((p: any) => p.slug === slug) || products[0]
-                    : products.find((p: any) => p.slug === 'cloud-nine-stroller') || products[0];
-
-                if (foundProduct) {
-                    setProduct(foundProduct);
-                    setRelatedProducts(products.filter((p: any) => p.id !== foundProduct.id).slice(0, 3));
-                    setSelectedColor(PRODUCT_COLORS[0]);
-                }
-            } catch (error) {
-                console.error("Failed to load product", error);
-            }
-        };
-        loadProduct();
-    }, [slug]);
-
-    const handleAddToCart = () => {
-        if (!product || !selectedColor) return;
-
-        addToCart({
-            id: product.id,
-            name: product.name,
-            price: Number(product.price),
-            quantity: 1,
-            image: product.image,
-            color: selectedColor.name,
-            stock_quantity: Number(product.stock_quantity ?? 0),
-        });
-        setAdded(true);
-        setTimeout(() => setAdded(false), 2000);
+  const slug = useSearchParams().get("slug");
+  const [product, setProduct] = useState<Product | null>(null);
+  const [related, setRelated] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+  const [message, setMessage] = useState("");
+  const add = useCartStore((s) => s.addToCart);
+  const open = useCartStore((s) => s.openCart);
+  useEffect(() => {
+    let active = true;
+    setLoading(true);
+    setError(false);
+    setProduct(null);
+    setMessage("");
+    Promise.all([
+      slug ? fetchProduct(slug) : Promise.resolve(null),
+      fetchProducts().catch(() => []),
+    ])
+      .then(([found, all]: [Product | null, Product[]]) => {
+        if (!active) return;
+        setProduct(found);
+        setRelated(
+          found
+            ? all
+                .filter(
+                  (p) =>
+                    p.id !== found.id &&
+                    p.category.slug === found.category.slug,
+                )
+                .slice(0, 3)
+            : [],
+        );
+      })
+      .catch(() => {
+        if (active) setError(true);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
     };
-
-    if (!product) return <div className="min-h-screen pt-24 pb-12 px-6 container mx-auto"><LoadingSkeleton /></div>;
-
-    const COLORS = PRODUCT_COLORS; // Alias for compatibility with the new layout code
-
+  }, [slug, attempt]);
+  if (loading)
     return (
-        <div className="min-h-screen pt-20 lg:pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
-                {/* Visual Section */}
-                <div className="w-full relative bg-gray-100 rounded-[2.5rem] overflow-hidden h-[400px] md:h-[500px] lg:h-[600px] shadow-sm">
-                    <button
-                        onClick={() => setViewMode(viewMode === '3d' ? 'image' : '3d')}
-                        className="absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-sm p-3 rounded-full shadow-sm hover:scale-110 transition-transform"
-                    >
-                        {viewMode === '3d' ? <ImageOff className="w-5 h-5 text-gray-700" /> : <Box className="w-5 h-5 text-gray-700" />}
-                    </button>
-
-                    {viewMode === '3d' ? (
-                        <div className="w-full h-full">
-                            <ProductScene>
-                                <Center>
-                                    <BabyStroller color={selectedColor?.value} />
-                                </Center>
-                            </ProductScene>
-                        </div>
-                    ) : (
-                        <div className="w-full h-full relative">
-                            {product.image && <Image
-                                src={product.image}
-                                alt={product.name}
-                                fill
-                                className="object-cover"
-                            />}
-                        </div>
-                    )}
-                </div>
-
-                {/* Details Section */}
-                <div className="flex flex-col gap-6 lg:gap-8 px-2">
-                    <div>
-                        <div className="flex items-center gap-2 mb-4">
-                            <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wider">
-                                {product.category?.name || 'Collection'}
-                            </span>
-                            <span className="text-gray-400 text-sm font-medium">|</span>
-                            <span className="text-gray-500 text-sm font-medium">{product.age_group || '0+'}</span>
-                        </div>
-                        <h1 className="text-3xl md:text-5xl font-black text-foreground mb-2 leading-tight">
-                            {product.name}
-                        </h1>
-                        <p className="text-2xl md:text-3xl font-bold text-primary">
-                            {formatCurrency(Number(product.price))}
-                        </p>
-                        <div className={`mt-3 inline-flex items-center rounded-full px-3 py-1 text-sm font-semibold ${Number(product.stock_quantity ?? 0) > 0 ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-                            {Number(product.stock_quantity ?? 0) > 0 ? `${product.stock_quantity} in stock` : 'Out of stock'}
-                        </div>
-                    </div>
-
-                    <p className="text-muted-foreground text-base md:text-lg leading-relaxed">
-                        {product.description}
-                    </p>
-
-                    <div className="space-y-6 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-                        {/* Features Grid */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-blue-50 text-blue-500 rounded-lg">
-                                    <ShieldCheck className="w-5 h-5" />
-                                </div>
-                                <span className="text-sm font-medium">Certified Safe</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-green-50 text-green-500 rounded-lg">
-                                    <Leaf className="w-5 h-5" />
-                                </div>
-                                <span className="text-sm font-medium">Eco-Friendly</span>
-                            </div>
-                        </div>
-
-                        {/* Colors */}
-                        <div>
-                            <span className="block text-sm font-bold text-gray-900 mb-3">Select Color</span>
-                            <div className="flex gap-3">
-                                {COLORS.map((color) => (
-                                    <button
-                                        key={color.name}
-                                        onClick={() => setSelectedColor(color)}
-                                        className={`w-12 h-12 rounded-full border-2 transition-all ${selectedColor?.name === color.name
-                                                ? 'border-primary ring-2 ring-primary/20 scale-110'
-                                                : 'border-transparent hover:scale-105'
-                                            }`}
-                                        style={{ backgroundColor: color.value }}
-                                        title={color.name}
-                                    />
-                                ))}
-                            </div>
-                            <p className="mt-2 text-sm text-gray-500">{selectedColor?.name}</p>
-                        </div>
-
-                        <div className="h-px bg-gray-100 my-4" />
-
-                        {/* Actions */}
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <button
-                                onClick={handleAddToCart}
-                                disabled={added || Number(product.stock_quantity ?? 0) <= 0}
-                                className={`flex-1 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl transition-all active:scale-95 flex items-center justify-center gap-2 ${added
-                                        ? 'bg-green-500 text-white'
-                                        : 'bg-foreground text-white hover:bg-foreground/90'
-                                    } ${Number(product.stock_quantity ?? 0) <= 0 ? 'cursor-not-allowed opacity-70' : ''}`}
-                            >
-                                {added ? (
-                                    <>
-                                        <Check className="w-6 h-6" /> Added to Cart
-                                    </>
-                                ) : (
-                                    <>
-                                        <ShoppingCart className="w-5 h-5" /> Add to Cart
-                                    </>
-                                )}
-                            </button>
-                            <button
-                                className="flex items-center justify-center w-full sm:w-14 h-14 rounded-full border-2 border-gray-200 text-gray-400 hover:border-red-200 hover:text-red-500 hover:bg-red-50 transition-all font-bold"
-                            >
-                                <Heart className="w-6 h-6" />
-                            </button>
-                        </div>
-                    </div>
-
-                    <button
-                        onClick={() => setIsSizeGuideOpen(true)}
-                        className="flex items-center justify-center gap-2 text-primary font-semibold text-sm hover:underline"
-                    >
-                        <Ruler className="w-4 h-4" /> Size Guide
-                    </button>
-                </div>
-            </div>
-
-            {relatedProducts.length > 0 && (
-                <div className="mt-16">
-                    <div className="mb-6 flex items-center justify-between">
-                        <h2 className="text-2xl font-black">Recommended for you</h2>
-                        <span className="text-sm text-muted-foreground">Pair with your cart selection</span>
-                    </div>
-                    <div className="grid gap-4 md:grid-cols-3">
-                        {relatedProducts.map((item) => (
-                            <div key={item.id} className="rounded-3xl border border-gray-100 bg-white p-4 shadow-sm">
-                                <div className="relative mb-4 aspect-square overflow-hidden rounded-2xl bg-gray-100">
-                                    {item.image && <Image src={item.image} alt={item.name} fill className="object-cover" />}
-                                </div>
-                                <h3 className="font-bold">{item.name}</h3>
-                                <p className="mt-1 text-sm text-muted-foreground line-clamp-2">{item.description}</p>
-                                <div className="mt-4 flex items-center justify-between">
-                                    <span className="font-bold text-primary">{formatCurrency(Number(item.price))}</span>
-                                    <button
-                                        type="button"
-                                        onClick={() => addToCart({ id: item.id, name: item.name, price: Number(item.price), quantity: 1, image: item.image, stock_quantity: Number(item.stock_quantity ?? 0) })}
-                                        className="rounded-full bg-foreground px-4 py-2 text-sm font-semibold text-white"
-                                    >
-                                        Add
-                                    </button>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
-
-            <AnimatePresence>
-                {isSizeGuideOpen && <SizeGuideModal onClose={() => setIsSizeGuideOpen(false)} />}
-            </AnimatePresence>
-        </div>
+      <main className="mx-auto max-w-7xl px-6 py-32" aria-busy="true">
+        <p role="status">Finding your little favourite…</p>
+        <div className="mt-6 h-80 animate-pulse rounded-3xl bg-gray-100" />
+      </main>
     );
+  if (error)
+    return (
+      <main className="mx-auto max-w-xl px-6 py-32 text-center">
+        <h1 className="text-3xl font-bold">A small hiccup.</h1>
+        <p className="my-4">
+          We couldn’t load this product. Your cart is safe.
+        </p>
+        <button
+          className="rounded-full bg-primary px-6 py-3 text-white"
+          onClick={() => setAttempt((a) => a + 1)}
+        >
+          Try again
+        </button>
+      </main>
+    );
+  if (!product)
+    return (
+      <main className="mx-auto max-w-xl px-6 py-32 text-center">
+        <h1 className="text-3xl font-bold">This little find isn’t here.</h1>
+        <p className="my-4">It may have moved or is no longer available.</p>
+        <Link href="/shop" className="text-primary underline">
+          Back to the shop
+        </Link>
+      </main>
+    );
+  const stock = Math.max(0, product.stock_quantity);
+  return (
+    <main className="mx-auto max-w-7xl px-6 pb-20 pt-28">
+      <nav aria-label="Breadcrumb" className="mb-8 text-sm">
+        <Link href="/shop" className="underline">
+          Shop
+        </Link>
+        <span> / </span>
+        <Link
+          href={"/shop?category=" + encodeURIComponent(product.category.slug)}
+          className="underline"
+        >
+          {product.category.name}
+        </Link>
+      </nav>
+      <div className="grid gap-10 md:grid-cols-2">
+        <div className="relative aspect-square overflow-hidden rounded-[2rem] bg-[#F1EDE7]">
+          {product.image ? (
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              priority
+              sizes="(max-width:768px) 100vw,50vw"
+              className="object-contain p-6"
+            />
+          ) : (
+            <p className="grid h-full place-items-center text-muted-foreground">
+              Product photograph coming soon
+            </p>
+          )}
+        </div>
+        <div className="flex flex-col justify-center">
+          <p className="text-sm font-bold uppercase tracking-widest text-primary">
+            {product.category.name}
+          </p>
+          <h1 className="mt-3 text-4xl font-black md:text-5xl">
+            {product.name}
+          </h1>
+          <p className="my-5 text-3xl font-bold">
+            {formatCurrency(product.price)}
+          </p>
+          <p className={stock ? "text-green-800" : "text-red-800"}>
+            {stock ? stock + " available" : "Currently out of stock"}
+          </p>
+          <p className="my-6 whitespace-pre-line leading-relaxed text-muted-foreground">
+            {product.description ||
+              "More product details are being prepared. Check the specifications before purchasing."}
+          </p>
+          <button
+            disabled={!stock}
+            onClick={() => {
+              const ok = add({
+                ...product,
+                quantity: 1,
+                price: Number(product.price),
+              });
+              setMessage(
+                ok
+                  ? "Added to your basket."
+                  : "You’ve reached the available quantity for this item.",
+              );
+            }}
+            className="rounded-full bg-primary p-4 text-lg font-bold text-white"
+          >
+            {stock ? "Add to your basket" : "Out of stock"}
+          </button>
+          <p role="status" className="mt-3 min-h-6">
+            {message}
+          </p>
+          {message.startsWith("Added") && (
+            <button onClick={open} className="text-left text-primary underline">
+              View basket
+            </button>
+          )}
+          <details className="mt-6 border-t py-4">
+            <summary className="cursor-pointer font-bold">
+              Before you choose
+            </summary>
+            <p className="mt-3 text-sm leading-relaxed">
+              Check the product description for dimensions, materials, care and
+              age guidance. Do not assume an age rating or safety certification
+              where none is listed.
+            </p>
+          </details>
+          <Link href="/support" className="text-sm text-primary underline">
+            Questions about this item?
+          </Link>
+        </div>
+      </div>
+      {related.length > 0 && (
+        <section className="mt-20">
+          <h2 className="mb-6 text-2xl font-bold">More little finds</h2>
+          <div className="grid gap-6 sm:grid-cols-3">
+            {related.map((p) => (
+              <Link
+                key={p.id}
+                href={"/product?slug=" + encodeURIComponent(p.slug)}
+                className="rounded-2xl border bg-white p-5"
+              >
+                <h3 className="font-bold">{p.name}</h3>
+                <p className="mt-3">{formatCurrency(p.price)}</p>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+    </main>
+  );
 }

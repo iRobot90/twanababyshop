@@ -1,3 +1,4 @@
+import sharp from 'sharp';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_SIZE_BYTES } from './validation';
 
@@ -27,15 +28,17 @@ export async function uploadProductImages(
             continue;
         }
 
-        const extension = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+        let image: Buffer;
+        try { const source = Buffer.from(await file.arrayBuffer()); const metadata = await sharp(source,{limitInputPixels:20000000}).metadata(); if (!metadata.format || !['jpeg','png','webp','gif'].includes(metadata.format)) throw new Error('Unsupported format'); image = await sharp(source,{limitInputPixels:20000000,animated:false}).rotate().resize({width:2400,height:2400,fit:'inside',withoutEnlargement:true}).webp({quality:85}).toBuffer(); } catch { errors.push('Invalid or unsupported image data'); continue; }
+        const extension = 'webp';
         const path = `${crypto.randomUUID()}.${extension}`;
 
         const { error: uploadError } = await supabase.storage
             .from(BUCKET)
-            .upload(path, file, {
+            .upload(path, image, {
                 cacheControl: '3600',
                 upsert: false,
-                contentType: file.type,
+                contentType: 'image/webp',
             });
 
         if (uploadError) {

@@ -1,153 +1,169 @@
-'use client';
-
+"use client";
 import Hero from "@/components/layout/Hero";
 import Link from "next/link";
-import { ArrowRight, Star, Heart } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from 'react';
-import { fetchProducts, fetchCategories } from '@/lib/api';
-import { formatCurrency } from '@/lib/utils';
-
-interface CategoryItem {
-  id: number;
-  slug: string;
-  name: string;
-  image: string;
-}
-
-interface ProductItem {
-  id: number;
+import { useEffect, useState } from "react";
+import { fetchProducts } from "@/lib/api";
+import { formatCurrency } from "@/lib/utils";
+type Product = {
+  id: string;
   name: string;
   slug: string;
-  price: string;
+  price: number;
   image: string;
-  description?: string;
-  category?: { name?: string; slug?: string };
-}
-
+  stock_quantity: number;
+  category: { name: string; slug: string };
+};
 export default function Home() {
-  const [categories, setCategories] = useState<CategoryItem[]>([]);
-  const [featuredProducts, setFeaturedProducts] = useState<ProductItem[]>([]);
-
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const [attempt, setAttempt] = useState(0);
   useEffect(() => {
-    const loadContent = async () => {
-      try {
-        const [productsData, categoriesData] = await Promise.all([
-          fetchProducts(),
-          fetchCategories(),
-        ]);
-
-        const rankedProducts = [...productsData]
-          .sort((a: ProductItem, b: ProductItem) => Number(b.price) - Number(a.price))
-          .slice(0, 6);
-
-        setFeaturedProducts(rankedProducts);
-        setCategories(categoriesData || []);
-      } catch (err) {
-        console.error("Failed to load catalog content", err);
-      }
+    let active = true;
+    setLoading(true);
+    setError(false);
+    fetchProducts()
+      .then((data) => {
+        if (active) setProducts(data);
+      })
+      .catch(() => {
+        if (active) setError(true);
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+    return () => {
+      active = false;
     };
-    loadContent();
-  }, []);
-
+  }, [attempt]);
+  const categories = Array.from(
+    new Map(
+      products.map((p) => [p.category.slug, { ...p.category, image: p.image }]),
+    ).values(),
+  );
   return (
-    <main className="flex min-h-screen flex-col items-center w-full overflow-x-hidden">
-      <Hero />
-
-      {/* Seasonal Promo Banner */}
-      <section className="w-full bg-primary/20 py-12 px-6 sm:px-12 my-8">
-        <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-8 rounded-3xl bg-white p-8 md:p-12 shadow-sm border border-primary/20 relative overflow-hidden">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-
-          <div className="z-10 max-w-lg">
-            <span className="inline-block py-1 px-3 rounded-full bg-accent/30 text-accent-foreground text-xs font-bold uppercase tracking-wider mb-4">
-              Winter Season Sale
-            </span>
-            <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-              Cozy Snuggles Up To <span className="text-primary">40% Off</span>
-            </h2>
-            <p className="text-muted-foreground mb-8 text-lg">
-              Keep your little ones warm with our premium organic cotton layers. Limited time seasonal offers.
+    <main>
+      <Hero
+        image={products.find((p) => p.image)?.image}
+        name={products.find((p) => p.image)?.name}
+      />
+      <section className="mx-auto max-w-7xl px-6 py-14 md:py-20">
+        <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="mb-3 text-xs uppercase tracking-[.2em] text-muted-foreground">
+              The collection
             </p>
-            <Link href="/shop?category=clothing" className="inline-flex items-center gap-2 bg-foreground text-white px-8 py-3 rounded-full font-semibold hover:bg-foreground/80 transition-colors">
-              Shop Winter Collection <ArrowRight className="w-4 h-4" />
-            </Link>
+            <h2 className="text-3xl font-medium tracking-tight md:text-4xl">
+              Their next little favourite.
+            </h2>
           </div>
-          <div className="relative w-full md:w-1/3 aspect-square rounded-full bg-primary/30 flex items-center justify-center animate-float">
-            <span className="text-6xl">❄️</span>
+          <Link
+            className="border-b border-foreground pb-1 text-sm"
+            href="/shop"
+          >
+            Explore everything ↗
+          </Link>
+        </div>
+        {loading ? (
+          <p role="status" className="py-12 text-muted-foreground">
+            Getting the little things ready…
+          </p>
+        ) : error ? (
+          <div role="alert" className="border-y border-foreground/15 py-10">
+            <h3 className="text-xl">A little hiccup, not an empty shop.</h3>
+            <p className="mt-2 text-muted-foreground">
+              We could not load the collection. Please try again.
+            </p>
+            <button
+              onClick={() => setAttempt((n) => n + 1)}
+              className="mt-5 rounded-full bg-foreground px-6 py-3 text-white"
+            >
+              Try again
+            </button>
           </div>
-        </div>
-      </section>
-
-      {/* Shop by Category */}
-      <section className="container mx-auto px-6 py-16">
-        <div className="flex items-center justify-between mb-12">
-          <h2 className="text-3xl font-bold font-outfit">Shop by Category</h2>
-          <Link href="/categories" className="text-primary font-semibold hover:underline">View All</Link>
-        </div>
-
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-          {categories.length > 0 ? (
-            categories.map((cat) => (
-              <Link key={cat.id} href={`/shop?category=${cat.slug}`} className="group cursor-pointer">
-                <div className="relative aspect-[4/5] rounded-3xl overflow-hidden mb-4 shadow-sm group-hover:shadow-md transition-all">
-                  <Image
-                    src={cat.image || 'https://images.unsplash.com/photo-1591027480007-a42f6ef886c3?q=80&w=2160&auto=format&fit=crop'}
-                    alt={cat.name}
-                    fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors" />
-                </div>
-                <h3 className="text-xl font-bold text-center group-hover:text-primary transition-colors">{cat.name}</h3>
-              </Link>
-            ))
-          ) : (
-            <p className="col-span-full text-center text-muted-foreground">No categories available yet.</p>
-          )}
-        </div>
-      </section>
-
-      {/* Featured Products */}
-      <section className="w-full bg-secondary/10 py-20 px-6">
-        <div className="container mx-auto">
-          <h2 className="text-3xl font-bold font-outfit text-center mb-12">Parent Favorites</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {featuredProducts.length > 0 ? (
-              featuredProducts.map((prod) => (
-                <Link href={`/product?slug=${prod.slug}`} key={prod.id} className="group bg-white rounded-3xl p-4 hover:-translate-y-2 transition-transform duration-300 shadow-sm border border-white/50">
-                  <div className="relative aspect-square rounded-2xl overflow-hidden bg-gray-100 mb-4">
-                    {prod.image && <Image
-                      src={prod.image}
-                      alt={prod.name}
+        ) : products.length === 0 ? (
+          <p className="py-12 text-muted-foreground">
+            Our next little finds are on their way. There are no products to
+            browse just yet.
+          </p>
+        ) : (
+          <div className="grid grid-cols-2 gap-x-4 gap-y-8 lg:grid-cols-4 md:gap-x-6">
+            {products.slice(0, 8).map((p) => (
+              <Link
+                key={p.id}
+                href={"/product?slug=" + encodeURIComponent(p.slug)}
+                className="group"
+              >
+                <div className="relative mb-4 aspect-[4/5] overflow-hidden bg-[#F2EEE9]">
+                  {p.image ? (
+                    <Image
+                      src={p.image}
+                      alt={p.name}
                       fill
-                      className="object-cover"
-                    />}
-                    <button className="absolute top-3 right-3 p-2 bg-white/80 rounded-full hover:bg-white text-gray-400 hover:text-red-400 transition-colors">
-                      <Heart className="w-5 h-5" />
-                    </button>
-                  </div>
-                  <div className="px-2">
-                    <div className="flex gap-1 text-accent mb-2">
-                      <Star className="w-4 h-4 fill-current" />
-                      <Star className="w-4 h-4 fill-current" />
-                      <Star className="w-4 h-4 fill-current" />
-                      <Star className="w-4 h-4 fill-current" />
-                      <Star className="w-4 h-4 fill-current" />
-                    </div>
-                    <h3 className="text-xl font-bold mb-1 line-clamp-1">{prod.name}</h3>
-                    <p className="text-sm text-muted-foreground mb-2">{prod.category?.name || 'Featured item'}</p>
-                    <p className="text-lg text-muted-foreground">{formatCurrency(Number(prod.price))}</p>
-                  </div>
-                </Link>
-              ))
-            ) : (
-              <p className="col-span-3 text-center text-muted-foreground">Loading favorites...</p>
-            )}
+                      sizes="(max-width: 1023px) 50vw, 25vw"
+                      className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+                    />
+                  ) : (
+                    <span className="absolute inset-0 grid place-items-center p-4 text-sm text-muted-foreground">
+                      Photo coming soon
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {p.category.name}
+                </p>
+                <h3 className="mt-1 text-base font-medium">{p.name}</h3>
+                <p className="mt-2 text-sm">{formatCurrency(p.price)}</p>
+                {p.stock_quantity < 1 && (
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    Currently out of stock
+                  </p>
+                )}
+              </Link>
+            ))}
           </div>
+        )}
+      </section>
+      {categories.length > 0 && (
+        <section className="border-y border-foreground/10 bg-[#EEEFE5] px-6 py-12">
+          <div className="mx-auto max-w-7xl">
+            <h2 className="mb-7 text-2xl font-medium">
+              A place for every little thing.
+            </h2>
+            <div className="flex flex-wrap gap-3">
+              {categories.map((c) => (
+                <Link
+                  key={c.slug}
+                  href={"/shop?category=" + encodeURIComponent(c.slug)}
+                  className="rounded-full border border-foreground/20 px-6 py-3 text-sm hover:bg-white"
+                >
+                  {c.name} ↗
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+      <section className="mx-auto grid max-w-7xl gap-8 px-6 py-16 md:grid-cols-2 md:py-24">
+        <h2 className="font-serif text-4xl italic leading-tight md:text-5xl">
+          Big feelings.
+          <br />
+          Little everyday rituals.
+        </h2>
+        <div>
+          <p className="max-w-lg text-lg leading-relaxed text-muted-foreground">
+            A fresh outfit. A favourite toy. The bag packed for a day out.
+            Twaana is here for the small things that make up family life.
+          </p>
+          <Link
+            href="/about"
+            className="mt-6 inline-block border-b border-foreground pb-1 text-sm"
+          >
+            A little about us ↗
+          </Link>
         </div>
       </section>
-
     </main>
   );
 }

@@ -1,38 +1,33 @@
-'use client';
-
+import Link from "next/link";
 export default function PrivacyPage() {
-    return (
-        <main className="min-h-screen pt-24 pb-12 px-6 bg-white">
-            <div className="container mx-auto max-w-4xl">
-                <h1 className="text-4xl font-bold mb-8 font-outfit">Privacy Policy</h1>
-                <div className="space-y-6 text-muted-foreground leading-relaxed">
-                    <p>Last updated: December 2025</p>
-                    <p>
-                        At Twana Baby Shop, your privacy is our priority. We are committed to protecting your personal information and being transparent about what we collect.
-                    </p>
-
-                    <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">1. Information We Collect</h2>
-                    <p>
-                        We collect information you provide directly to us when you create an account, make a purchase, or contact us. This includes your name, email address, phone number, and shipping address.
-                    </p>
-
-                    <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">2. How We Use Your Information</h2>
-                    <p>
-                        We use your information to:
-                    </p>
-                    <ul className="list-disc pl-6 space-y-2">
-                        <li>Process your orders and payments.</li>
-                        <li>Communicate with you about your order status.</li>
-                        <li>Send you promotional emails (only if you opt-in).</li>
-                        <li>Improve our website and customer service.</li>
-                    </ul>
-
-                    <h2 className="text-2xl font-bold text-foreground mt-8 mb-4">3. Data Security</h2>
-                    <p>
-                        We implement appropriate security measures to protect your personal information against unauthorized access or disclosure.
-                    </p>
-                </div>
-            </div>
-        </main>
-    );
+  return (
+    <main className="mx-auto max-w-3xl px-6 pb-20 pt-32">
+      <p className="mb-4 text-xs uppercase tracking-wider text-primary">
+        Development preview
+      </p>
+      <h1 className="mb-8 text-4xl font-medium">Privacy information</h1>
+      <div className="space-y-6 leading-relaxed text-muted-foreground">
+        <p>
+          The store’s final privacy notice is not yet published. Do not enter
+          real personal or payment information into this test checkout.
+        </p>
+        <h2 className="text-xl text-foreground">How this preview works</h2>
+        <p>
+          The cart is stored in your browser when local storage is available.
+          Checkout sends the details entered and the basket to the store server.
+          The payment integration redirects to Paystack; this website does not
+          collect card details or M-Pesa PINs.
+        </p>
+        <h2 className="text-xl text-foreground">Before live orders open</h2>
+        <p>
+          The store must confirm its legal identity, privacy contact, data
+          retention periods, service providers and how customers can exercise
+          their privacy rights. These details need review before live use.
+        </p>
+        <Link href="/support" className="inline-block underline">
+          Store support information
+        </Link>
+      </div>
+    </main>
+  );
 }

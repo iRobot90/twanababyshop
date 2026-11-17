@@ -50,7 +50,7 @@ function LoginForm() {
                     <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/15 text-primary">
                         <Lock className="h-7 w-7" />
                     </div>
-                    <h1 className="text-3xl font-black">Twana Admin</h1>
+                    <h1 className="text-3xl font-black">Twaana Admin</h1>
                     <p className="mt-2 text-sm text-muted-foreground">
                         Sign in to upload and manage store inventory.
                     </p>

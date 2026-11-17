@@ -2,7 +2,7 @@ export const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat('en-KE', {
         style: 'currency',
         currency: 'KES',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
     }).format(amount);
 };

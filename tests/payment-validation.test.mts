@@ -1,0 +1,14 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import {createHmac} from 'node:crypto';
+import {parseCheckout, toMinorUnits, verifySignature} from '../src/lib/payments/validation.ts';
+import {readBody} from '../src/lib/payments/body.ts';
+const item = {id:'11111111-1111-4111-8111-111111111111',quantity:1};
+const input = {first_name:'A',last_name:'B',email:'a@example.com',address:'Street',city:'Nairobi',postal_code:'00100',items:[item]};
+test('money is exact and rejects invalid values',()=>{assert.equal(toMinorUnits('12.05'),1205);for(const n of ['-1','0','1.234','NaN','Infinity'])assert.throws(()=>toMinorUnits(n));});
+test('cart rejects malformed IDs and quantities',()=>{for(const quantity of [0,-1,1.5,21]) assert.throws(()=>parseCheckout({...input,items:[{...item,quantity}]}));assert.throws(()=>parseCheckout({...input,items:[{...item,id:'-'.repeat(36)}]}));});
+test('cart merges repeated products and caps aggregate',()=>{assert.equal(parseCheckout({...input,items:[item,item]}).items[0].quantity,2);assert.throws(()=>parseCheckout({...input,items:[{...item,quantity:20},item]}));});
+test('client prices are not trusted',()=>assert.equal('price' in parseCheckout({...input,items:[{...item,price:1}]}).items[0],false));
+test('webhook signatures use exact raw bytes',()=>{const b=Buffer.from('{"ok":true}');const sig=createHmac('sha512','secret').update(b).digest('hex');assert.equal(verifySignature(b,sig,'secret'),true);assert.equal(verifySignature(Buffer.from('changed'),sig,'secret'),false);assert.equal(verifySignature(b,'invalid','secret'),false);});
+test('timestamped signatures reject stale delivery',()=>{const b=Buffer.from('{}'),t='1700000000';const sig=createHmac('sha512','whsec_test').update(t+'.{}').digest('hex');assert.equal(verifySignature(b,'t='+t+',v1=whk_test:'+sig,'whsec_test',true,1700000000000),true);assert.equal(verifySignature(b,'t='+t+',v1=whk_test:'+sig,'whsec_test',true,1700000400000),false);});
+test('body limit applies to streamed bytes',async()=>{assert.equal((await readBody(new Request('https://example.com',{method:'POST',body:'abc'}),3)).toString(),'abc');await assert.rejects(readBody(new Request('https://example.com',{method:'POST',body:'abcd'}),3));});
