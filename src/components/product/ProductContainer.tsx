@@ -18,6 +18,9 @@ type Product = {
 };
 export default function ProductContainer() {
   const slug = useSearchParams().get("slug");
+  return <ProductDetails key={slug || "missing"} slug={slug} />;
+}
+function ProductDetails({ slug }: { slug: string | null }) {
   const [product, setProduct] = useState<Product | null>(null);
   const [related, setRelated] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -28,10 +31,6 @@ export default function ProductContainer() {
   const open = useCartStore((s) => s.openCart);
   useEffect(() => {
     let active = true;
-    setLoading(true);
-    setError(false);
-    setProduct(null);
-    setMessage("");
     Promise.all([
       slug ? fetchProduct(slug) : Promise.resolve(null),
       fetchProducts().catch(() => []),
@@ -77,7 +76,7 @@ export default function ProductContainer() {
         </p>
         <button
           className="rounded-full bg-primary px-6 py-3 text-white"
-          onClick={() => setAttempt((a) => a + 1)}
+          onClick={() => { setLoading(true); setError(false); setMessage(""); setAttempt((a) => a + 1); }}
         >
           Try again
         </button>

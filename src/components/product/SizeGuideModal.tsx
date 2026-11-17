@@ -56,7 +56,7 @@ export default function SizeGuideModal({ onClose }: { onClose: () => void }) {
                     </div>
 
                     <div className="bg-indigo-50 p-4 rounded-xl text-indigo-900 text-sm">
-                        <strong>Tip:</strong> The suspension automatically adjusts to your child's weight for the smoothest ride.
+                        <strong>Tip:</strong> Check the manufacturer’s age, size and weight limits for the exact product before use.
                     </div>
                 </div>
             </motion.div>

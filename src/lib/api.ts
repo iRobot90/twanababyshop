@@ -9,7 +9,13 @@ export const api = axios.create({
   },
 });
 
-const normalizeProduct = (product: any) => {
+type ApiProduct = {
+  id: string; title?: string; name?: string; slug?: string; price?: number | string;
+  image?: string; image_url?: string | string[]; description?: string;
+  category?: string | {name?: string; slug?: string}; stock_quantity?: number;
+  is_active?: boolean;
+};
+const normalizeProduct = (product: ApiProduct) => {
   const title = product?.title || product?.name || "Untitled product";
   const slug =
     product?.slug ||

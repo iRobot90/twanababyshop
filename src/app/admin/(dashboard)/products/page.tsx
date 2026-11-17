@@ -28,7 +28,17 @@ export default function AdminProductsPage() {
     };
 
     useEffect(() => {
-        loadProducts();
+        const controller = new AbortController();
+        fetch('/api/admin/products', {signal: controller.signal})
+            .then(async response => {
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'Failed to load products');
+                return data;
+            })
+            .then(data => { if (!controller.signal.aborted) setProducts(data.products ?? []); })
+            .catch(err => { if (!controller.signal.aborted) setError(err instanceof Error ? err.message : 'Failed to load products'); })
+            .finally(() => { if (!controller.signal.aborted) setLoading(false); });
+        return () => controller.abort();
     }, []);
 
     return (

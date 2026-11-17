@@ -35,3 +35,7 @@ Provider verification must match the order and report `domain: test`; live/missi
 The paid/paid_review reconciliation fast path trusts previously recorded durable settlement in the isolated test database. It is not a refund, chargeback or current-provider-status reconciler. Never mix live orders into this test database; operational reversal/refund handling is a separate release requirement.
 
 Full repository lint currently fails (57 errors, 1708 warnings, including bundled legacy frontend artifacts and existing source violations). Focused payment lint, all 20 local tests, TypeScript and production build pass. This checkpoint is a development backup, not a production-ready release.
+
+Active Next app/product/cart/API lint errors were corrected in the follow-up; only generated frontend/dist bundles are excluded. Full source lint still reports 29 errors and 91 warnings in remaining legacy components/config. They are not suppressed. Current production build and 20 local tests pass; synthetic local browser acceptance passes; real sandbox integration remains unverified.
+
+Browser smoke: run the local production server on 127.0.0.1:3187, then `node tests/storefront-browser-smoke.mjs` with Playwright installed (or PLAYWRIGHT_MODULE pointing to an installed module). Covers synthetic 503 recovery, related-product navigation and Back, missing receipt and pending-to-paid verification. It does not contact Paystack or Supabase.

@@ -21,8 +21,6 @@ export default function Home() {
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let active = true;
-    setLoading(true);
-    setError(false);
     fetchProducts()
       .then((data) => {
         if (active) setProducts(data);
@@ -76,7 +74,7 @@ export default function Home() {
               We could not load the collection. Please try again.
             </p>
             <button
-              onClick={() => setAttempt((n) => n + 1)}
+              onClick={() => { setLoading(true); setError(false); setAttempt((n) => n + 1); }}
               className="mt-5 rounded-full bg-foreground px-6 py-3 text-white"
             >
               Try again

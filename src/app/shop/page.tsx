@@ -5,9 +5,6 @@ import { fetchProducts } from "@/lib/api";
 import Link from "next/link";
 import Image from "next/image";
 import {
-  Heart,
-  ShoppingBag,
-  ArrowRight,
   SlidersHorizontal,
 } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
@@ -60,7 +57,6 @@ function ShopContent() {
     };
   }, [categoryParam, searchParam, sortOrder, attempt]);
 
-  const categories = Array.from(new Set(products.map((p) => p.category.name)));
 
   return (
     <main className="min-h-screen pt-24 pb-12 px-6 bg-gray-50/50">

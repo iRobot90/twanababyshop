@@ -5,6 +5,7 @@ export const dynamic = "force-dynamic";
 export default async function Orders() {
   const { error } = await requireAdmin();
   if (error) return <p>Administrator access required.</p>;
+  let orders = null;
   try {
     const { db } = paymentConfig();
     const { data, error: queryError } = await db
@@ -13,6 +14,26 @@ export default async function Orders() {
       .order("created_at", { ascending: false })
       .limit(100);
     if (queryError) throw queryError;
+    orders = data ?? [];
+
+  } catch {
+    // Query/config failure is handled below; rendering errors belong to an error boundary.
+  }
+  if (!orders) {
+    return (
+      <>
+        <h1 className="text-3xl font-black">Order review unavailable</h1>
+        <p className="mt-4">
+          Configure the isolated test database, payment keys and orders
+          migration to load this queue. No order status has been changed.
+        </p>
+      </>
+    );
+  }
+  return <OrderList data={orders} />;
+}
+
+function OrderList({data}: {data: Array<{reference:string;amount:number;status:string;created_at:string;customer:{first_name:string;last_name:string;email:string;address:string;city:string;postal_code:string};items:Array<{id:string;title:string;quantity:number;preferences?:{color:string;quantity:number}[]}>}>}) {
     return (
       <>
         <h1 className="text-3xl font-black">Order review</h1>
@@ -81,15 +102,4 @@ export default async function Orders() {
         </div>
       </>
     );
-  } catch {
-    return (
-      <>
-        <h1 className="text-3xl font-black">Order review unavailable</h1>
-        <p className="mt-4">
-          Configure the isolated test database, payment keys and orders
-          migration to load this queue. No order status has been changed.
-        </p>
-      </>
-    );
-  }
 }

@@ -2,15 +2,14 @@
 
 import { useCartStore } from '@/lib/store';
 import CartDrawer from '@/components/Cart/CartDrawer';
-import { useEffect, useState } from 'react';
+import { useSyncExternalStore } from 'react';
+const subscribe = () => () => {};
+const clientSnapshot = () => true;
+const serverSnapshot = () => false;
 
 export default function GlobalCartDrawer() {
     const { isOpen, closeCart } = useCartStore();
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => {
-        setMounted(true);
-    }, []);
+    const mounted = useSyncExternalStore(subscribe, clientSnapshot, serverSnapshot);
 
     if (!mounted) return null;
 

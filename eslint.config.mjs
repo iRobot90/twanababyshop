@@ -11,6 +11,8 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    // Generated Vite bundles, not editable source.
+    "frontend/dist/**",
     "next-env.d.ts",
   ]),
 ]);

@@ -43,7 +43,7 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const normalized = (data ?? []).map((product: any) => {
+    const normalized = (data ?? []).map((product) => {
       const title = product.title || "Untitled product";
       const slug = slugify(title) + "-" + product.id;
       const categoryName = product.category || "General";

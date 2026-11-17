@@ -11,8 +11,6 @@ export default function CategoriesPage() {
   const [attempt, setAttempt] = useState(0);
   useEffect(() => {
     let active = true;
-    setLoading(true);
-    setError(false);
     fetchCategories()
       .then((data) => {
         if (active) setCategories(data);
@@ -44,7 +42,7 @@ export default function CategoriesPage() {
         <div role="alert">
           <p>We could not load the collections. Please try again.</p>
           <button
-            onClick={() => setAttempt((n) => n + 1)}
+            onClick={() => { setLoading(true); setError(false); setAttempt((n) => n + 1); }}
             className="mt-5 rounded-full bg-foreground px-6 py-3 text-white"
           >
             Try again
