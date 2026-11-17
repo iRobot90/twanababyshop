@@ -39,3 +39,10 @@ Full repository lint currently fails (57 errors, 1708 warnings, including bundle
 Active Next app/product/cart/API lint errors were corrected in the follow-up; only generated frontend/dist bundles are excluded. Full source lint still reports 29 errors and 91 warnings in remaining legacy components/config. They are not suppressed. Current production build and 20 local tests pass; synthetic local browser acceptance passes; real sandbox integration remains unverified.
 
 Browser smoke: run the local production server on 127.0.0.1:3187, then `node tests/storefront-browser-smoke.mjs` with Playwright installed (or PLAYWRIGHT_MODULE pointing to an installed module). Covers synthetic 503 recovery, related-product navigation and Back, missing receipt and pending-to-paid verification. It does not contact Paystack or Supabase.
+
+## Verified isolated sandbox checks, 17 November 2026
+The reference-format migration was applied separately to the existing isolated `twaana-sandbox` only. Hyphen references, legacy reference compatibility, malformed-reference rejection, sequential duplicate settlement and rollback cleanup passed.
+
+A true simultaneous-session duplicate-settlement test also passed: two different PostgreSQL backends overlapped, with the second waiting 29.63 seconds on the first transaction before returning `paid`. A uniquely tagged synthetic product started with stock 3 and a quantity-2 order; final stock was 1, not decremented twice. Guarded cleanup removed only the created synthetic order/product. Verified final baseline: 41 products, 0 orders, 0 request-limit entries, 0 test products, and 0 open test transactions. No Paystack request or real customer data was used.
+
+This proves the tested same-order concurrent retry case only. Competing distinct orders, multi-product deadlock contention, provider callbacks, refunds, actual Paystack sandbox checkout and operational recovery still need their own acceptance checks. No production configuration or payments were enabled.
