@@ -1,7 +1,7 @@
 'use client';
 
 import { useCartStore } from '@/lib/store';
-import CartDrawer from '@/components/cart/CartDrawer';
+import CartDrawer from '@/components/Cart/CartDrawer';
 import { useEffect, useState } from 'react';
 
 export default function GlobalCartDrawer() {

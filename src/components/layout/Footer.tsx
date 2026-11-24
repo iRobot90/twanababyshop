@@ -53,7 +53,7 @@ export default function Footer() {
                     <div>
                         <h4 className="font-bold text-lg mb-6">Support</h4>
                         <ul className="space-y-4 text-muted-foreground">
-                            <li><Link href="/support#shipping" className="hover:text-primary transition-colors">Shipping & Returns</Link></li>
+                            <li><Link href="/support#shipping" className="hover:text-primary transition-colors">Delivery & Return Questions</Link></li>
                             <li><Link href="/size-guide" className="hover:text-primary transition-colors">Size Guide</Link></li>
                             <li><Link href="/support#faq" className="hover:text-primary transition-colors">FAQ</Link></li>
                             <li><Link href="/support#contact" className="hover:text-primary transition-colors">Contact Us</Link></li>

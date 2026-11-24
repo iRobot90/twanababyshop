@@ -2,7 +2,7 @@
 
 import Hero from "@/components/layout/Hero";
 import Link from "next/link";
-import { ArrowRight, Star, Heart } from "lucide-react";
+import { ArrowRight, Star, Heart, ShoppingBag } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useState } from 'react';
 import { fetchProducts, fetchCategories } from '@/lib/api';
@@ -54,27 +54,27 @@ export default function Home() {
     <main className="flex min-h-screen flex-col items-center w-full overflow-x-hidden">
       <Hero />
 
-      {/* Seasonal Promo Banner */}
+      {/* Browse the shop */}
       <section className="w-full bg-primary/20 py-12 px-6 sm:px-12 my-8">
         <div className="container mx-auto flex flex-col md:flex-row items-center justify-between gap-8 rounded-3xl bg-white p-8 md:p-12 shadow-sm border border-primary/20 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-64 h-64 bg-accent/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
 
           <div className="z-10 max-w-lg">
             <span className="inline-block py-1 px-3 rounded-full bg-accent/30 text-accent-foreground text-xs font-bold uppercase tracking-wider mb-4">
-              Winter Season Sale
+              Twaana Baby Shop
             </span>
             <h2 className="text-3xl md:text-5xl font-bold text-foreground mb-4">
-              Cozy Snuggles Up To <span className="text-primary">40% Off</span>
+              Find something for your little one
             </h2>
             <p className="text-muted-foreground mb-8 text-lg">
-              Keep your little ones warm with our premium organic cotton layers. Limited time seasonal offers.
+              Browse baby products and explore the details before you choose.
             </p>
-            <Link href="/shop?category=clothing" className="inline-flex items-center gap-2 bg-foreground text-white px-8 py-3 rounded-full font-semibold hover:bg-foreground/80 transition-colors">
-              Shop Winter Collection <ArrowRight className="w-4 h-4" />
+            <Link href="/shop" className="inline-flex items-center gap-2 bg-foreground text-white px-8 py-3 rounded-full font-semibold hover:bg-foreground/80 transition-colors">
+              Browse products <ArrowRight aria-hidden="true" className="w-4 h-4" />
             </Link>
           </div>
           <div className="relative w-full md:w-1/3 aspect-square rounded-full bg-primary/30 flex items-center justify-center animate-float">
-            <span className="text-6xl">❄️</span>
+            <ShoppingBag aria-hidden="true" className="h-16 w-16 text-primary" />
           </div>
         </div>
       </section>

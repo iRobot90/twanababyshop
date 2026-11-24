@@ -31,7 +31,7 @@ export default function Hero() {
                     transition={{ duration: 0.8, ease: "easeOut" }}
                     className="inline-block py-2 px-4 rounded-full bg-white/60 backdrop-blur border border-white/50 text-sm font-bold tracking-wider uppercase mb-6 text-primary shadow-sm"
                 >
-                    ✨ New Arrivals: Winter Snuggles
+                    Twaana Baby Shop
                 </motion.span>
 
                 <motion.h1

@@ -3,7 +3,7 @@
 import { usePathname } from 'next/navigation';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
-import GlobalCartDrawer from '@/components/cart/GlobalCartDrawer';
+import GlobalCartDrawer from '@/components/Cart/GlobalCartDrawer';
 
 export default function StorefrontShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
