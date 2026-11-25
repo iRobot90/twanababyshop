@@ -13,7 +13,7 @@ interface CartDrawerProps {
 }
 
 export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
-    const { items, removeFromCart, total, addToCart } = useCartStore();
+    const { items, decreaseCartItem, total, addToCart } = useCartStore();
     const cartTotal = total();
 
     return (
@@ -68,14 +68,19 @@ export default function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                                                 <p className="font-bold text-primary">{formatCurrency(item.price)}</p>
                                                 <div className="flex items-center gap-2 bg-gray-100 rounded-full px-2 py-1">
                                                     <button
-                                                        onClick={() => item.quantity > 1 ? addToCart({ ...item, quantity: -1 }) : removeFromCart(item.id)}
+                                                        type="button"
+                                                        aria-label={`Decrease quantity for ${item.name}${item.color ? ` (${item.color})` : ''}`}
+                                                        onClick={() => decreaseCartItem(item.id, item.color)}
                                                         className="p-1 hover:text-red-500"
                                                     >
                                                         <Minus className="w-4 h-4" />
                                                     </button>
                                                     <span className="text-sm font-semibold w-4 text-center">{item.quantity}</span>
                                                     <button
-                                                        onClick={() => addToCart({ ...item, quantity: 0 })} // Logic handles increment
+                                                        type="button"
+                                                        aria-label={`Increase quantity for ${item.name}${item.color ? ` (${item.color})` : ''}`}
+                                                        disabled={typeof item.stock_quantity === 'number' && item.quantity >= item.stock_quantity}
+                                                        onClick={() => addToCart(item)}
                                                         className="p-1 hover:text-green-500"
                                                     >
                                                         <Plus className="w-4 h-4" />

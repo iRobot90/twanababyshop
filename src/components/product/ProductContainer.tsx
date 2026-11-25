@@ -65,7 +65,17 @@ export default function ProductContainer() {
     >({ key: requestKey, status: 'loading' });
     const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
     const { addToCart } = useCartStore();
-    const [added, setAdded] = useState(false);
+    const [feedback, setFeedback] = useState<{ key: string; result: 'added' | 'limit' } | null>(null);
+    const currentFeedback = feedback?.key === requestKey ? feedback.result : null;
+    const added = currentFeedback === 'added';
+
+    useEffect(() => {
+        if (!added) return;
+        const timeout = setTimeout(() => {
+            setFeedback(value => value?.key === requestKey && value.result === 'added' ? null : value);
+        }, 2000);
+        return () => clearTimeout(timeout);
+    }, [added, requestKey]);
 
     useEffect(() => {
         if (!slug) return;
@@ -75,7 +85,7 @@ export default function ProductContainer() {
                 if (controller.signal.aborted) return;
                 const result = resolveProductDetail(products, slug);
                 if (result) {
-                    setAdded(false);
+                    setFeedback(null);
                     setDetail({ key: requestKey, status: 'ready', ...result });
                 } else {
                     setDetail({ key: requestKey, status: 'missing' });
@@ -96,7 +106,7 @@ export default function ProductContainer() {
     const handleAddToCart = () => {
         if (!product || Number(product.stock_quantity ?? 0) <= 0) return;
 
-        addToCart({
+        const changed = addToCart({
             id: product.id,
             name: product.name,
             price: Number(product.price),
@@ -104,8 +114,7 @@ export default function ProductContainer() {
             image: product.image,
             stock_quantity: Number(product.stock_quantity ?? 0),
         });
-        setAdded(true);
-        setTimeout(() => setAdded(false), 2000);
+        setFeedback({ key: requestKey, result: changed ? 'added' : 'limit' });
     };
 
     if (!slug || current?.status === 'missing' || current?.status === 'error') {
@@ -201,6 +210,9 @@ export default function ProductContainer() {
                                 <Heart className="w-6 h-6" />
                             </button>
                         </div>
+                        <p role="status" className="text-sm text-muted-foreground">
+                            {currentFeedback === 'limit' ? 'This item is already at the cart quantity limit.' : ''}
+                        </p>
                     </div>
 
                     <button

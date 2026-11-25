@@ -17,7 +17,8 @@ interface CartStore {
     openCart: () => void;
     closeCart: () => void;
     toggleCart: () => void;
-    addToCart: (item: CartItem) => void;
+    addToCart: (item: CartItem) => boolean;
+    decreaseCartItem: (id: number, color?: string) => void;
     removeFromCart: (id: number) => void;
     clearCart: () => void;
     total: () => number;
@@ -31,27 +32,36 @@ export const useCartStore = create<CartStore>()(
             openCart: () => set({ isOpen: true }),
             closeCart: () => set({ isOpen: false }),
             toggleCart: () => set((state) => ({ isOpen: !state.isOpen })),
-            addToCart: (newItem) => set((state) => {
-                const existingItem = state.items.find(i => i.id === newItem.id && i.color === newItem.color);
-                if (existingItem) {
-                    const nextQuantity = existingItem.quantity + 1;
-                    if (typeof existingItem.stock_quantity === 'number' && nextQuantity > existingItem.stock_quantity) {
-                        return state;
+            addToCart: (newItem) => {
+                const sameItem = (item: CartItem) => item.id === newItem.id && item.color === newItem.color;
+                const existing = get().items.find(sameItem);
+                if (existing) {
+                    const nextQuantity = existing.quantity + 1;
+                    if (typeof existing.stock_quantity === 'number' && nextQuantity > existing.stock_quantity) {
+                        return false;
                     }
-                    return {
-                        items: state.items.map(i =>
-                            (i.id === newItem.id && i.color === newItem.color)
-                                ? { ...i, quantity: nextQuantity }
-                                : i
-                        )
-                    };
+                    set(state => ({
+                        items: state.items.map(item => sameItem(item) ? { ...item, quantity: nextQuantity } : item),
+                    }));
+                    return true;
                 }
                 const stockQuantity = typeof newItem.stock_quantity === 'number' ? newItem.stock_quantity : 999;
-                if (stockQuantity <= 0) {
-                    return state;
-                }
-                return { items: [...state.items, { ...newItem, quantity: 1 }] };
-            }),
+                if (stockQuantity <= 0) return false;
+                set(state => ({ items: [...state.items, { ...newItem, quantity: 1 }] }));
+                return true;
+            },
+            decreaseCartItem: (id, color) => {
+                const sameItem = (item: CartItem) => item.id === id && item.color === color;
+                const item = get().items.find(sameItem);
+                if (!item) return;
+                set(state => ({
+                    items: item.quantity <= 1
+                        ? state.items.filter(current => !sameItem(current))
+                        : state.items.map(current => sameItem(current)
+                            ? { ...current, quantity: current.quantity - 1 }
+                            : current),
+                }));
+            },
             removeFromCart: (id) => set((state) => ({
                 items: state.items.filter(i => i.id !== id)
             })),
