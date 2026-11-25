@@ -3,7 +3,8 @@
     "deploymentEnabled": {
       "review/storefront-copy-casing-20261124": false,
       "review/twaana-catalog-states-20261125": false,
-      "review/twaana-product-detail-20261125": false
+      "review/twaana-product-detail-20261125": false,
+      "review/twaana-browse-return-20261125": false
     }
   }
 }

@@ -102,7 +102,7 @@ await test('real /shop renders failure, retries identical filters, and ignores s
         assert.equal(await evaluate(currentCard('Stale sort result')), false);
         assert.equal(await evaluate('document.querySelector(\'[aria-label="Sort products"]\').value'), '-price');
         const detailLink = await evaluate('[...document.querySelectorAll("a")].find(a=>a.textContent.includes("Current sort result"))?.getAttribute("href")');
-        assert.equal(detailLink, '/product?slug=fixture-2');
+        assert.equal(detailLink, '/product?slug=fixture-2&category=clothing&search=wool&ordering=-price');
 
         onRequest = ({ requestId }) => void jsonResponse(requestId, { products: [] }).catch(error => { fixtureResponseFailure = error; });
         await send('Page.navigate', { url: base + '/shop' });

@@ -7,6 +7,7 @@ import Image from 'next/image';
 import { SlidersHorizontal } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
+import { catalogOrdering, shopHref, shopProductHref } from '@/lib/browseNavigation.mjs';
 
 interface Product {
     id: number;
@@ -29,7 +30,7 @@ function ShopContent() {
     const categoryParam = searchParams.get('category');
     const searchParam = searchParams.get('search');
 
-    const [sortOrder, setSortOrder] = useState('');
+    const sortOrder = catalogOrdering(searchParams.get('ordering'));
     const [retry, setRetry] = useState(0);
     const requestKey = JSON.stringify([categoryParam, searchParam, sortOrder, retry]);
     const [catalog, setCatalog] = useState<CatalogState>({ key: requestKey, status: 'loading' });
@@ -75,7 +76,7 @@ function ShopContent() {
                             aria-label="Sort products"
                             className="bg-transparent border-none outline-none text-sm font-medium py-2 pr-4"
                             value={sortOrder}
-                            onChange={(e) => setSortOrder(e.target.value)}
+                            onChange={(e) => window.history.replaceState(null, "", shopHref(searchParams, e.target.value))}
                         >
                             <option value="">Featured</option>
                             <option value="price">Price: Low to High</option>
@@ -114,7 +115,7 @@ function ShopContent() {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                             {products.map(product => (
                                 <Link
-                                    href={`/product?slug=${encodeURIComponent(product.slug)}`}
+                                    href={shopProductHref(product.slug, searchParams)}
                                     key={product.id}
                                     className="group bg-white rounded-3xl p-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-gray-100"
                                 >

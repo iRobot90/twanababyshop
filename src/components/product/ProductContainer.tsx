@@ -10,6 +10,7 @@ import { fetchShopProducts } from '@/lib/api';
 import { resolveProductDetail } from './resolveProductDetail.mjs';
 import { useSearchParams } from 'next/navigation';
 import { formatCurrency } from '@/lib/utils';
+import { shopHref } from '@/lib/browseNavigation.mjs';
 
 // Loading State
 const LoadingSkeleton = () => (
@@ -54,6 +55,7 @@ function ProductPhoto({ image, name }: { image: string; name: string }) {
 export default function ProductContainer() {
     const searchParams = useSearchParams();
     const slug = searchParams.get('slug');
+    const backToShop = shopHref(searchParams);
 
     const [retry, setRetry] = useState(0);
     const requestKey = JSON.stringify([slug, retry]);
@@ -119,7 +121,7 @@ export default function ProductContainer() {
                             Retry product
                         </button>
                     )}
-                    <Link href="/shop" className="font-bold underline">Back to the shop</Link>
+                    <Link href={backToShop} className="font-bold underline">Back to the shop</Link>
                 </div>
             </div>
         );
@@ -133,9 +135,9 @@ export default function ProductContainer() {
         );
     }
 
-
     return (
         <div className="min-h-screen pt-20 lg:pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto">
+            <Link href={backToShop} className="mb-6 inline-block font-bold underline">Back to the shop</Link>
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
                 {/* Visual Section */}
                 <div className="w-full relative bg-gray-100 rounded-[2.5rem] overflow-hidden h-[400px] md:h-[500px] lg:h-[600px] shadow-sm">
