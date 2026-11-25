@@ -1,15 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
-import { Canvas } from '@react-three/fiber';
-import { Environment, Center } from '@react-three/drei';
-import ProductScene from '@/components/three/ProductScene';
-import BabyStroller from '@/components/three/BabyStroller';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Ruler, ShoppingCart, Star, Check, Heart, ImageOff, Box, ShieldCheck, Leaf } from 'lucide-react';
+import Link from 'next/link';
+import { AnimatePresence } from 'framer-motion';
+import { Ruler, ShoppingCart, Check, Heart } from 'lucide-react';
 import SizeGuideModal from './SizeGuideModal';
 import { useCartStore } from '@/lib/store';
-import { fetchProducts, fetchProduct } from '@/lib/api';
+import { fetchShopProducts } from '@/lib/api';
+import { resolveProductDetail } from './resolveProductDetail.mjs';
 import { useSearchParams } from 'next/navigation';
 import { formatCurrency } from '@/lib/utils';
 
@@ -30,47 +28,71 @@ const LoadingSkeleton = () => (
     </div>
 );
 
+function ProductPhoto({ image, name }: { image: string; name: string }) {
+    const [failed, setFailed] = useState(false);
+
+    if (!image || failed) {
+        return (
+            <div className="grid h-full place-items-center p-6 text-center text-muted-foreground">
+                Product photo unavailable.
+            </div>
+        );
+    }
+
+    return (
+        <Image
+            src={image}
+            alt={name}
+            fill
+            sizes="(max-width: 1023px) 100vw, 50vw"
+            className="object-contain"
+            onError={() => setFailed(true)}
+        />
+    );
+}
+
 export default function ProductContainer() {
     const searchParams = useSearchParams();
     const slug = searchParams.get('slug');
 
-    const [product, setProduct] = useState<any>(null);
-    const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
-    const [selectedColor, setSelectedColor] = useState<any>(null);
+    const [retry, setRetry] = useState(0);
+    const requestKey = JSON.stringify([slug, retry]);
+    const [detail, setDetail] = useState<
+        { key: string; status: 'loading' | 'error' | 'missing' }
+        | { key: string; status: 'ready'; product: any; relatedProducts: any[] }
+    >({ key: requestKey, status: 'loading' });
     const [isSizeGuideOpen, setIsSizeGuideOpen] = useState(false);
-    const [viewMode, setViewMode] = useState<'3d' | 'image'>('3d');
     const { addToCart } = useCartStore();
     const [added, setAdded] = useState(false);
 
-    // Mock colors for the 3D model since DB might not have hex codes yet
-    const PRODUCT_COLORS = [
-        { name: 'Mist Blue', value: '#A5C8E4', hex: 'bg-[#A5C8E4]' },
-        { name: 'Blush Pink', value: '#F4C2C2', hex: 'bg-[#F4C2C2]' },
-        { name: 'Sage Green', value: '#9DC183', hex: 'bg-[#9DC183]' },
-    ];
-
     useEffect(() => {
-        const loadProduct = async () => {
-            try {
-                const products = await fetchProducts();
-                const foundProduct = slug
-                    ? products.find((p: any) => p.slug === slug) || products[0]
-                    : products.find((p: any) => p.slug === 'cloud-nine-stroller') || products[0];
-
-                if (foundProduct) {
-                    setProduct(foundProduct);
-                    setRelatedProducts(products.filter((p: any) => p.id !== foundProduct.id).slice(0, 3));
-                    setSelectedColor(PRODUCT_COLORS[0]);
+        if (!slug) return;
+        const controller = new AbortController();
+        fetchShopProducts({}, controller.signal).then(
+            products => {
+                if (controller.signal.aborted) return;
+                const result = resolveProductDetail(products, slug);
+                if (result) {
+                    setAdded(false);
+                    setDetail({ key: requestKey, status: 'ready', ...result });
+                } else {
+                    setDetail({ key: requestKey, status: 'missing' });
                 }
-            } catch (error) {
-                console.error("Failed to load product", error);
-            }
-        };
-        loadProduct();
-    }, [slug]);
+            },
+            () => {
+                if (!controller.signal.aborted) setDetail({ key: requestKey, status: 'error' });
+            },
+        );
+        return () => controller.abort();
+    }, [slug, requestKey]);
+
+    // A quick navigation should never leave the previous product actionable.
+    const current = detail.key === requestKey ? detail : null;
+    const product = current?.status === 'ready' ? current.product : null;
+    const relatedProducts = current?.status === 'ready' ? current.relatedProducts : [];
 
     const handleAddToCart = () => {
-        if (!product || !selectedColor) return;
+        if (!product || Number(product.stock_quantity ?? 0) <= 0) return;
 
         addToCart({
             id: product.id,
@@ -78,47 +100,50 @@ export default function ProductContainer() {
             price: Number(product.price),
             quantity: 1,
             image: product.image,
-            color: selectedColor.name,
             stock_quantity: Number(product.stock_quantity ?? 0),
         });
         setAdded(true);
         setTimeout(() => setAdded(false), 2000);
     };
 
-    if (!product) return <div className="min-h-screen pt-24 pb-12 px-6 container mx-auto"><LoadingSkeleton /></div>;
+    if (!slug || current?.status === 'missing' || current?.status === 'error') {
+        const failed = current?.status === 'error';
+        return (
+            <div className="min-h-screen pt-28 px-6 text-center">
+                <h1 className="text-3xl font-black" role={failed ? 'alert' : undefined}>
+                    {failed ? 'We couldn’t load this product.' : 'This product isn’t available.'}
+                </h1>
+                <div className="mt-5 flex justify-center gap-4">
+                    {failed && (
+                        <button type="button" onClick={() => setRetry(attempt => attempt + 1)} className="font-bold underline">
+                            Retry product
+                        </button>
+                    )}
+                    <Link href="/shop" className="font-bold underline">Back to the shop</Link>
+                </div>
+            </div>
+        );
+    }
+    if (!product) {
+        return (
+            <div className="min-h-screen pt-24 pb-12 px-6 container mx-auto">
+                <p role="status" className="sr-only">Loading product…</p>
+                <div aria-hidden="true"><LoadingSkeleton /></div>
+            </div>
+        );
+    }
 
-    const COLORS = PRODUCT_COLORS; // Alias for compatibility with the new layout code
 
     return (
         <div className="min-h-screen pt-20 lg:pt-24 pb-12 px-4 md:px-8 max-w-7xl mx-auto">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-16 items-center">
                 {/* Visual Section */}
                 <div className="w-full relative bg-gray-100 rounded-[2.5rem] overflow-hidden h-[400px] md:h-[500px] lg:h-[600px] shadow-sm">
-                    <button
-                        onClick={() => setViewMode(viewMode === '3d' ? 'image' : '3d')}
-                        className="absolute top-4 right-4 z-10 bg-white/90 backdrop-blur-sm p-3 rounded-full shadow-sm hover:scale-110 transition-transform"
-                    >
-                        {viewMode === '3d' ? <ImageOff className="w-5 h-5 text-gray-700" /> : <Box className="w-5 h-5 text-gray-700" />}
-                    </button>
-
-                    {viewMode === '3d' ? (
-                        <div className="w-full h-full">
-                            <ProductScene>
-                                <Center>
-                                    <BabyStroller color={selectedColor?.value} />
-                                </Center>
-                            </ProductScene>
-                        </div>
-                    ) : (
-                        <div className="w-full h-full relative">
-                            {product.image && <Image
-                                src={product.image}
-                                alt={product.name}
-                                fill
-                                className="object-cover"
-                            />}
-                        </div>
-                    )}
+                    <ProductPhoto
+                        key={JSON.stringify([product.id, product.image])}
+                        image={typeof product.image === 'string' ? product.image.trim() : ''}
+                        name={product.name}
+                    />
                 </div>
 
                 {/* Details Section */}
@@ -128,8 +153,9 @@ export default function ProductContainer() {
                             <span className="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-bold uppercase tracking-wider">
                                 {product.category?.name || 'Collection'}
                             </span>
-                            <span className="text-gray-400 text-sm font-medium">|</span>
-                            <span className="text-gray-500 text-sm font-medium">{product.age_group || '0+'}</span>
+                            {typeof product.age_group === 'string' && product.age_group.trim() && (
+                                <span className="text-gray-500 text-sm font-medium">{product.age_group}</span>
+                            )}
                         </div>
                         <h1 className="text-3xl md:text-5xl font-black text-foreground mb-2 leading-tight">
                             {product.name}
@@ -147,44 +173,6 @@ export default function ProductContainer() {
                     </p>
 
                     <div className="space-y-6 bg-white p-6 rounded-3xl border border-gray-100 shadow-sm">
-                        {/* Features Grid */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-blue-50 text-blue-500 rounded-lg">
-                                    <ShieldCheck className="w-5 h-5" />
-                                </div>
-                                <span className="text-sm font-medium">Certified Safe</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                                <div className="p-2 bg-green-50 text-green-500 rounded-lg">
-                                    <Leaf className="w-5 h-5" />
-                                </div>
-                                <span className="text-sm font-medium">Eco-Friendly</span>
-                            </div>
-                        </div>
-
-                        {/* Colors */}
-                        <div>
-                            <span className="block text-sm font-bold text-gray-900 mb-3">Select Color</span>
-                            <div className="flex gap-3">
-                                {COLORS.map((color) => (
-                                    <button
-                                        key={color.name}
-                                        onClick={() => setSelectedColor(color)}
-                                        className={`w-12 h-12 rounded-full border-2 transition-all ${selectedColor?.name === color.name
-                                                ? 'border-primary ring-2 ring-primary/20 scale-110'
-                                                : 'border-transparent hover:scale-105'
-                                            }`}
-                                        style={{ backgroundColor: color.value }}
-                                        title={color.name}
-                                    />
-                                ))}
-                            </div>
-                            <p className="mt-2 text-sm text-gray-500">{selectedColor?.name}</p>
-                        </div>
-
-                        <div className="h-px bg-gray-100 my-4" />
-
                         {/* Actions */}
                         <div className="flex flex-col sm:flex-row gap-4">
                             <button
