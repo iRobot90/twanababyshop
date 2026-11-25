@@ -59,6 +59,19 @@ export const fetchProducts = async (params?: { category?: string; search?: strin
     }
 };
 
+// Browse needs to distinguish a successful empty list from a failed catalog request.
+export async function fetchShopProducts(
+    params: { category?: string; search?: string; ordering?: string },
+    signal: AbortSignal,
+) {
+    const { data } = await api.get('/api/products', { params, signal, timeout: 12000 });
+    const products = Array.isArray(data) ? data : data?.products ?? data?.results;
+    if (!Array.isArray(products)) {
+        throw new Error('Catalog response did not contain a product list');
+    }
+    return products.map(normalizeProduct);
+}
+
 export const fetchProduct = async (slug: string) => {
     const response = await api.get('/api/products', {
         params: { slug },

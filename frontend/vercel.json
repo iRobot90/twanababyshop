@@ -1,1 +1,8 @@
-{"git":{"deploymentEnabled":{"review/storefront-copy-casing-20261124":false}}}
+{
+  "git": {
+    "deploymentEnabled": {
+      "review/storefront-copy-casing-20261124": false,
+      "review/twaana-catalog-states-20261125": false
+    }
+  }
+}

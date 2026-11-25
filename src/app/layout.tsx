@@ -11,7 +11,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Twana Baby Shop | Premium Comfort",
+  title: "Twaana Baby Shop | Premium Comfort",
   description: "Experience the softest baby essentials.",
 };
 

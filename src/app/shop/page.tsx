@@ -1,10 +1,10 @@
 'use client';
 
 import { useEffect, useState, Suspense } from 'react';
-import { fetchProducts } from '@/lib/api';
+import { fetchShopProducts } from '@/lib/api';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Heart, ShoppingBag, ArrowRight, SlidersHorizontal } from 'lucide-react';
+import { SlidersHorizontal } from 'lucide-react';
 import { formatCurrency } from '@/lib/utils';
 import { useSearchParams } from 'next/navigation';
 
@@ -12,7 +12,7 @@ interface Product {
     id: number;
     name: string;
     slug: string;
-    price: string;
+    price: number;
     image: string;
     category: {
         name: string;
@@ -20,33 +20,40 @@ interface Product {
     };
 }
 
+type CatalogState =
+    | { key: string; status: 'loading' | 'error' }
+    | { key: string; status: 'ready'; products: Product[] };
+
 function ShopContent() {
     const searchParams = useSearchParams();
     const categoryParam = searchParams.get('category');
     const searchParam = searchParams.get('search');
 
-    const [products, setProducts] = useState<Product[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [sortOrder, setSortOrder] = useState<string>('');
+    const [sortOrder, setSortOrder] = useState('');
+    const [retry, setRetry] = useState(0);
+    const requestKey = JSON.stringify([categoryParam, searchParam, sortOrder, retry]);
+    const [catalog, setCatalog] = useState<CatalogState>({ key: requestKey, status: 'loading' });
 
     useEffect(() => {
-        const load = async () => {
-            setLoading(true);
-            try {
-                const data = await fetchProducts({
-                    category: categoryParam || undefined,
-                    search: searchParam || undefined,
-                    ordering: sortOrder || undefined
-                });
-                setProducts(Array.isArray(data) ? data : []);
-            } finally {
-                setLoading(false);
-            }
-        };
-        load();
-    }, [categoryParam, searchParam, sortOrder]);
+        const controller = new AbortController();
+        fetchShopProducts({
+            category: categoryParam || undefined,
+            search: searchParam || undefined,
+            ordering: sortOrder || undefined,
+        }, controller.signal).then(
+            products => {
+                if (!controller.signal.aborted) setCatalog({ key: requestKey, status: 'ready', products });
+            },
+            () => {
+                if (!controller.signal.aborted) setCatalog({ key: requestKey, status: 'error' });
+            },
+        );
+        return () => controller.abort();
+    }, [categoryParam, searchParam, sortOrder, requestKey]);
 
-    const categories = Array.from(new Set(products.map(p => p.category.name)));
+    // Do not flash the previous filters' results while the next effect starts.
+    const status = catalog.key === requestKey ? catalog.status : 'loading';
+    const products = catalog.key === requestKey && catalog.status === 'ready' ? catalog.products : [];
 
     return (
         <main className="min-h-screen pt-24 pb-12 px-6 bg-gray-50/50">
@@ -56,14 +63,16 @@ function ShopContent() {
                         <h1 className="text-4xl md:text-5xl font-bold mb-4 font-outfit">
                             {searchParam ? `Results for "${searchParam}"` : 'Shop Collection'}
                         </h1>
-                        <p className="text-muted-foreground max-w-2xl">
-                            {products.length} items found
+                        <p role="status" className="text-muted-foreground max-w-2xl">
+                            {status === 'loading' && 'Loading products…'}
+                            {status === 'ready' && `${products.length} ${products.length === 1 ? 'item' : 'items'} found`}
                         </p>
                     </div>
 
                     <div className="flex items-center gap-4 bg-white p-2 rounded-xl shadow-sm border border-gray-100">
                         <SlidersHorizontal className="w-5 h-5 text-muted-foreground ml-2" />
                         <select
+                            aria-label="Sort products"
                             className="bg-transparent border-none outline-none text-sm font-medium py-2 pr-4"
                             value={sortOrder}
                             onChange={(e) => setSortOrder(e.target.value)}
@@ -76,25 +85,36 @@ function ShopContent() {
                     </div>
                 </div>
 
-                {loading ? (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+                {status === 'loading' ? (
+                    <div aria-hidden="true" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                         {[1, 2, 3, 4].map(i => (
                             <div key={i} className="aspect-square bg-gray-200 rounded-2xl animate-pulse" />
                         ))}
+                    </div>
+                ) : status === 'error' ? (
+                    <div className="text-center py-20">
+                        <p role="alert" className="text-xl">We couldn’t load the catalog. Please try again.</p>
+                        <button type="button" onClick={() => setRetry(attempt => attempt + 1)} className="text-primary font-bold hover:underline mt-4">
+                            Retry catalog
+                        </button>
                     </div>
                 ) : (
                     <>
                         {products.length === 0 && (
                             <div className="text-center py-20">
-                                <p className="text-xl text-muted-foreground">No products found matching your search.</p>
-                                <Link href="/shop" className="text-primary font-bold hover:underline mt-4 inline-block">Clear Filters</Link>
+                                <p className="text-xl text-muted-foreground">
+                                    {categoryParam || searchParam ? 'No products match those filters.' : 'No products are listed yet.'}
+                                </p>
+                                {(categoryParam || searchParam) && (
+                                    <Link href="/shop" className="text-primary font-bold hover:underline mt-4 inline-block">Clear filters</Link>
+                                )}
                             </div>
                         )}
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
                             {products.map(product => (
                                 <Link
-                                    href={`/product?slug=${product.slug}`}
+                                    href={`/product?slug=${encodeURIComponent(product.slug)}`}
                                     key={product.id}
                                     className="group bg-white rounded-3xl p-4 transition-all duration-300 hover:shadow-xl hover:-translate-y-2 border border-gray-100"
                                 >
@@ -105,17 +125,10 @@ function ShopContent() {
                                             fill
                                             className="object-cover transition-transform duration-500 group-hover:scale-110"
                                         />}
-                                        <div className="absolute top-3 right-3 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <button className="p-2 bg-white rounded-full shadow-sm hover:text-red-500 transition-colors">
-                                                <Heart className="w-5 h-5" />
-                                            </button>
-                                            <button className="p-2 bg-white rounded-full shadow-sm hover:text-primary transition-colors">
-                                                <ShoppingBag className="w-5 h-5" />
-                                            </button>
-                                        </div>
+
                                     </div>
                                     <div className="px-1">
-                                        <h3 className="font-bold text-lg mb-1 truncate">{product.name}</h3>
+                                        <h2 className="font-bold text-lg mb-1 truncate">{product.name}</h2>
                                         <div className="flex items-center justify-between">
                                             <p className="text-primary font-bold text-xl">{formatCurrency(Number(product.price))}</p>
                                             <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground bg-gray-100 px-2 py-1 rounded-md">
